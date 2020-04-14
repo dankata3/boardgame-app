@@ -1,0 +1,41 @@
+.main-container {
+  padding: 30px 0;
+}
+
+.app-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.table {
+  color: #3e3e3f;
+}
+
+.nav-header {
+  border-bottom: 1px solid #3e3e3f;
+  box-shadow: 1px 2px 4px #6b6b6d;
+  height: 72px;
+}
+
+.nav-header a {
+  color: #3e3e3f;
+}
+.nav-header a.active {
+  border-bottom: 2px solid #626666;
+}
+.nav-header li {
+  list-style: none;
+}
+
+.close-card-btn {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  cursor: pointer;
+}
+
+.input-error:focus,
+.input-error {
+  border-color: #f45050;
+  background-color: #f77474;
+}
