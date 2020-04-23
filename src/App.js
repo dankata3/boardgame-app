@@ -138,8 +138,8 @@ class App extends Component {
 
   addPlayer = (player) => {
     const formattedGameObj = {
-      name: player.name.value,
-      color: player.color.value,
+      name: player.form.name.value,
+      color: player.form.color.value,
     };
     axiosInstance.post('/players.json', formattedGameObj).then((response) => {
       this.setState((prevState) => {
@@ -158,9 +158,10 @@ class App extends Component {
   };
 
   addGame = (game) => {
+    debugger;
     const formattedGameObj = {
-      name: game.name.value,
-      bggLink: game.bggLink.value,
+      name: game.form.name.value,
+      bggLink: game.form.bggLink.value,
     };
     axiosInstance.post('/games.json', formattedGameObj).then((response) => {
       this.setState((prevState) => {
@@ -183,50 +184,57 @@ class App extends Component {
     const playersRequest = axiosInstance.get('/players.json');
     const resultsRequest = axiosInstance.get('/gameSessions.json');
 
-    axios.all([gamesRequest, playersRequest, resultsRequest]).then(
-      axios.spread((...responses) => {
-        const [gamesResponse, playersResponse, resultsResponse] = responses;
-        let games = [];
-        let players = [];
-        let gameSessions = [];
+    axios
+      .all([gamesRequest, playersRequest, resultsRequest])
+      .then(
+        axios.spread((...responses) => {
+          const [gamesResponse, playersResponse, resultsResponse] = responses;
+          let games = [];
+          let players = [];
+          let gameSessions = [];
 
-        for (let key in gamesResponse.data) {
-          games.push({
-            id: key,
-            name: gamesResponse.data[key].name,
-            bggLink: gamesResponse.data[key].bggLink,
-          });
-        }
+          for (let key in gamesResponse.data) {
+            games.push({
+              id: key,
+              name: gamesResponse.data[key].name,
+              bggLink: gamesResponse.data[key].bggLink,
+            });
+          }
 
-        for (let key in playersResponse.data) {
-          players.push({
-            id: key,
-            name: playersResponse.data[key].name,
-            color: playersResponse.data[key].color,
-          });
-        }
+          for (let key in playersResponse.data) {
+            players.push({
+              id: key,
+              name: playersResponse.data[key].name,
+              color: playersResponse.data[key].color,
+            });
+          }
 
-        for (let key in resultsResponse.data) {
-          gameSessions.push({
-            sessionId: key,
-            gameDate: resultsResponse.data[key].gameDate,
-            gameId: resultsResponse.data[key].gameId,
-            sessionPlayers: resultsResponse.data[key].sessionPlayers,
+          for (let key in resultsResponse.data) {
+            gameSessions.push({
+              sessionId: key,
+              gameDate: resultsResponse.data[key].gameDate,
+              gameId: resultsResponse.data[key].gameId,
+              sessionPlayers: resultsResponse.data[key].sessionPlayers,
+            });
+          }
+
+          this.setState({
+            players,
+            games,
+            gameSessions,
           });
-        }
-        this.setState({
-          players,
-          games,
-          gameSessions,
-        });
-      })
-    );
+        })
+      )
+      .catch((error) => {
+        console.log(error);
+      });
   }
   render() {
     return (
       <div>
         <Context.Provider
           value={{
+            maxPlayers: this.state.maxPlayers,
             players: this.state.players,
             games: this.state.games,
             gameSessions: this.state.gameSessions,

@@ -7,17 +7,15 @@ import Utils from '../../../../utils/utils';
 const resultRow = (props) => {
   const { gameId, date, sessionPlayers } = props.gameSession;
 
-  const { players, games } = useContext(Context);
+  const { players, games, maxPlayers } = useContext(Context);
   const gamesMap = Utils.mapObjectById(games);
   const playersMap = Utils.mapObjectById(players);
-
-  const maxPlayersNumber = 4;
 
   const formattedDate = moment(date).format('DD/MM/YYYY');
   const sessionGame = gamesMap[gameId].name;
   const playersScoresCells = [];
 
-  for (let i = 0; i < maxPlayersNumber; i++) {
+  for (let i = 0; i < maxPlayers; i++) {
     if (sessionPlayers[i]) {
       playersScoresCells.push(sessionPlayers[i]);
     } else {

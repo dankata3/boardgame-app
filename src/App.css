@@ -34,8 +34,25 @@
   cursor: pointer;
 }
 
+.input-error-message {
+  color: #f31e1e;
+  position: absolute;
+  transition: 0.3s;
+  top: 2px;
+  padding: 4px 8px;
+  right: 4px;
+  font-size: 12px;
+  border: 2px solid #f31e1e;
+  border-radius: 6px 6px 0 0;
+  z-index: 1;
+  transition: 0.3s ease-out;
+}
+
 .input-error:focus,
 .input-error {
-  border-color: #f45050;
+  border-color: #f31e1e;
+  /* outline: none; */
+  box-shadow: 0 0 0 0.1rem #f31e1e;
+  outline-color: #f31e1e;
   background-color: #f77474;
 }

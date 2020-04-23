@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 
 const input = (props) => {
   const {
@@ -8,25 +8,24 @@ const input = (props) => {
     name,
     type,
     value,
-    errorMessage,
     changed,
-    invalid,
+    validation,
     touched,
   } = props;
   let inputElement;
+  let errorMessage;
   const inputClasses = ['form-control'];
-  // let errorMessage;
 
-  if (invalid && touched) {
+  if (!validation.value && touched) {
     inputClasses.push('input-error');
-    // errorMessage = 'Select another player';
+
+    errorMessage = <p className="input-error-message">{validation.error}</p>;
   }
 
   switch (inputtype) {
     case 'input':
       inputElement = (
         <input
-          // className={`form-control ${touched && !valid ? 'input-error' : null}`}
           className={inputClasses.join(' ')}
           value={value}
           onChange={changed}
@@ -53,7 +52,7 @@ const input = (props) => {
           onChange={changed}
           name={name}
         >
-          <option value="">{invalid ? errorMessage : '-'}</option>
+          <option value="">-</option>
           {items.map((item) => (
             <option key={item.id} value={item.id}>
               {item.name}
@@ -75,9 +74,10 @@ const input = (props) => {
   }
 
   return (
-    <div>
+    <div className="position-relative ">
       <label htmlFor="">{label}</label>
       {inputElement}
+      {errorMessage}
     </div>
   );
 };

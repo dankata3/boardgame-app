@@ -9,14 +9,17 @@ export class PlayersForm extends Component {
     super(props);
 
     this.state = {
-      playersForm: {
+      form: {
         name: {
           value: '',
           validation: {
             required: true,
             min: true,
           },
-          valid: false,
+          valid: {
+            value: false,
+            error: null,
+          },
           touched: false,
         },
         color: {
@@ -31,27 +34,49 @@ export class PlayersForm extends Component {
 
   static contextType = Context;
 
+  // inputChangeHandler = (value, inputIdentifier) => {
+  //   const updatedFormElement = { ...this.state.playersForm[inputIdentifier] };
+  //   updatedFormElement.touched = true;
+  //   updatedFormElement.value = value;
+  //   debugger;
+  //   if (updatedFormElement.validation) {
+  //     updatedFormElement.valid = Utils.checkValidity(
+  //       value,
+  //       updatedFormElement.validation
+  //     );
+  //   }
+
+  //   this.setState({
+  //     [inputIdentifier]: updatedFormElement,
+  //   });
+  // };
+
   inputChangeHandler = (value, inputIdentifier) => {
-    const updatedFormElement = { ...this.state[inputIdentifier] };
+    const updatedForm = { ...this.state.form };
+    const updatedFormElement = { ...updatedForm[inputIdentifier] };
     updatedFormElement.touched = true;
     updatedFormElement.value = value;
-    updatedFormElement.valid = Utils.checkValidity(
-      value,
-      updatedFormElement.validation
-    );
 
-    this.setState({
-      [inputIdentifier]: updatedFormElement,
-    });
-  };
+    if (updatedFormElement.validation) {
+      updatedFormElement.valid = Utils.checkValidity(
+        value,
+        updatedFormElement.validation
+      );
+    }
+    let isFormValid = true;
 
-  pickColorHandler = (colorObj) => {
-    const color = colorObj.hex;
-    const updatedColor = { ...this.state.color };
-    updatedColor.value = color;
-
-    this.setState({
-      color: updatedColor,
+    // for (let inputIdentifier in updatedForm) {
+    //   isFormValid = updatedForm[inputIdentifier].valid && isFormValid;
+    // }
+    this.setState((prevState) => {
+      return {
+        ...prevState,
+        form: {
+          ...prevState.form,
+          [inputIdentifier]: updatedFormElement,
+        },
+        isFormValid,
+      };
     });
   };
 
@@ -74,10 +99,10 @@ export class PlayersForm extends Component {
             label="Name"
             name="name"
             type="text"
-            invalid={!this.state.playersForm.name.valid}
-            touched={this.state.playersForm.name.touched}
+            validation={this.state.form.name.valid.value}
+            touched={this.state.form.name.touched}
             inputtype="input"
-            value={this.state.playersForm.name.value}
+            value={this.state.form.name.value}
             changed={(event) =>
               this.inputChangeHandler(event.target.value, event.target.name)
             }
@@ -86,8 +111,10 @@ export class PlayersForm extends Component {
         <div className="col-md-6 form-group">
           <label htmlFor="playerColor">Pick a color</label>
           <TwitterPicker
-            color={this.state.playersForm.color.value}
-            onChangeComplete={this.pickColorHandler}
+            color={this.state.form.color.value}
+            onChangeComplete={(value) =>
+              this.inputChangeHandler(value.hex, 'color')
+            }
           />
         </div>
         <div className="d-flex justify-content-center mt-3">

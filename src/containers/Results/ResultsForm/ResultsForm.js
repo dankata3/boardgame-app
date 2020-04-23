@@ -11,7 +11,7 @@ class ResultsForm extends Component {
     super();
 
     this.state = {
-      resultsForm: {
+      form: {
         gameDate: {
           value: Date.now(),
         },
@@ -20,39 +20,49 @@ class ResultsForm extends Component {
           validation: {
             required: true,
           },
-          valid: false,
+          valid: {
+            value: false,
+            error: null,
+          },
           touched: false,
         },
         sessionPlayers: [
           {
-            id: {
+            playerId: {
               value: null,
               validation: {
                 required: true,
                 different: true,
               },
-              valid: false,
+              valid: {
+                value: false,
+                error: null,
+              },
               touched: false,
-              selected: false,
             },
             score: {
               value: null,
               validation: {
                 required: true,
               },
-              valid: false,
+              valid: {
+                value: false,
+                error: null,
+              },
               touched: false,
             },
           },
           {
-            id: {
+            playerId: {
               value: null,
               validation: {
                 required: true,
                 different: true,
-                selected: false,
               },
-              valid: false,
+              valid: {
+                value: false,
+                error: null,
+              },
               touched: false,
             },
             score: {
@@ -60,7 +70,10 @@ class ResultsForm extends Component {
               validation: {
                 required: true,
               },
-              valid: false,
+              valid: {
+                value: false,
+                error: null,
+              },
               touched: false,
             },
           },
@@ -74,68 +87,100 @@ class ResultsForm extends Component {
 
   static contextType = Context;
 
+  validateForm = (form) => {
+    let isFormValid = true;
+
+    for (let inputIdentifier in form) {
+      const inputField = form[inputIdentifier];
+      if (!inputField.validation && !Array.isArray(inputField)) {
+        continue;
+      }
+
+      if (!Array.isArray(inputField)) {
+        isFormValid = inputField.valid.value && isFormValid;
+        if (!isFormValid) {
+          break;
+        }
+      } else {
+        inputField.map((input) => {
+          for (let nestedInput in input) {
+            isFormValid = input[nestedInput].valid.value && isFormValid;
+          }
+        });
+        if (!isFormValid) {
+          break;
+        }
+      }
+    }
+    return isFormValid;
+  };
+
   addPlayerCardHandler = () => {
-    const updatedForm = { ...this.state.resultsForm };
-    const sessionPlayers = [...updatedForm.sessionPlayers];
     const emptyPlayerObj = {
-      id: {
+      playerId: {
         value: null,
         validation: {
           required: true,
         },
-        valid: false,
+        valid: {
+          value: false,
+          error: null,
+        },
         touched: false,
-        selected: false,
       },
       score: {
         value: null,
         validation: {
           required: true,
         },
-        valid: false,
+        valid: {
+          value: false,
+          error: null,
+        },
         touched: false,
       },
     };
+    const sessionPlayers = [...this.state.form.sessionPlayers];
     const updatedSessionPlayers = sessionPlayers.concat(emptyPlayerObj);
+    const updatedForm = {
+      ...this.state.form,
+      sessionPlayers: updatedSessionPlayers,
+    };
+    let isFormValid = this.validateForm(updatedForm);
 
     this.setState((prevState) => {
       return {
-        ...prevState,
-        resultsForm: {
-          ...prevState.resultsForm,
+        form: {
+          ...prevState.form,
           sessionPlayers: updatedSessionPlayers,
         },
+        isFormValid,
       };
     });
   };
 
-  // validateSessionPlayers = (sessionPlayers) => {
-  //   let isValid = true;
-
-  //   sessionPlayers.sort((a, b) => (isValid = a.id.value !== b.id.value));
-
-  //   return isValid;
-  // };
-
   deletePlayerCardHandler = (id) => {
-    const updatedForm = { ...this.state.resultsForm };
-    const sessionPlayers = [...updatedForm.sessionPlayers];
+    const sessionPlayers = [...this.state.form.sessionPlayers];
     const updatedSessionPlayers = sessionPlayers.slice(0, id - 1);
+    const updatedForm = {
+      ...this.state.form,
+      sessionPlayers: updatedSessionPlayers,
+    };
+    let isFormValid = this.validateForm(updatedForm);
 
     this.setState((prevState) => {
       return {
-        ...prevState,
-        resultsForm: {
-          ...prevState.resultsForm,
+        form: {
+          ...prevState.form,
           sessionPlayers: updatedSessionPlayers,
         },
+        isFormValid,
       };
     });
   };
 
   inputChangeHandler = (value, inputIdentifier) => {
-    const updatedForm = { ...this.state.resultsForm };
-    const updatedFormElement = updatedForm[inputIdentifier];
+    const updatedFormElement = { ...this.state.form[inputIdentifier] };
     updatedFormElement.value = value;
 
     if (updatedFormElement.validation) {
@@ -145,54 +190,69 @@ class ResultsForm extends Component {
         updatedFormElement.validation
       );
     }
-
-    this.setState((prevState) => {
-      return {
-        ...prevState,
-        resultsForm: updatedForm,
-      };
-    });
-  };
-
-  playerSelectedHandler = (value, position) => {
-    const stringifiedObj = JSON.stringify(this.state.resultsForm);
-    const updatedForm = JSON.parse(stringifiedObj);
-    const updatedSessionPlayers = [...updatedForm.sessionPlayers];
-
-    updatedSessionPlayers[position].id.value = value;
-    updatedSessionPlayers[position].id.touched = true;
-    // updatedSessionPlayers[position].id.chosen = true;
-    updatedSessionPlayers[position].id.valid = Utils.checkValidity(
-      value,
-      updatedSessionPlayers[position].id.validation,
-      updatedSessionPlayers
-    );
-
-    if (!updatedSessionPlayers[position].id.valid) {
-      updatedSessionPlayers[position].id.value = null;
-      updatedSessionPlayers[position].id.errorMessage = 'Select another player';
-    }
-
-    this.setState((prevState) => {
-      return {
-        ...prevState,
-        resultsForm: updatedForm,
-      };
-    });
-  };
-
-  changePlayerScoreHandler = (playerScore, position) => {
-    const updatedSessionPlayers = [...this.state.resultsForm.sessionPlayers];
-
-    updatedSessionPlayers[position] = {
-      ...updatedSessionPlayers[position],
-      score: playerScore,
+    const updatedForm = {
+      ...this.state.form,
+      [inputIdentifier]: updatedFormElement,
     };
+    let isFormValid = this.validateForm(updatedForm);
 
-    this.setState((prevState) => ({
-      ...prevState,
+    this.setState({
+      form: updatedForm,
+      isFormValid,
+    });
+  };
+
+  sessionPlayersChangeHandler = (value, position, inputIdentifier) => {
+    // const updatedFormElement = { ...this.state.form[inputIdentifier] };
+    // const stringifiedForm = JSON.stringify(this.state.form);
+    // const updatedForm = JSON.parse(stringifiedForm);
+    const sessionPlayers = [...this.state.form.sessionPlayers];
+    debugger;
+    // const updatedPlayerPosition = sessionPlayers[position];
+    // updatedPlayerPosition[inputIdentifier].value = value;
+    // updatedPlayerPosition[inputIdentifier].touched = true;
+
+    // console.log(updatedPlayerPosition);
+
+    let players = [];
+    debugger;
+    const updatedSessionPlayers = sessionPlayers.map((player, i) => {
+      if (i === position) {
+        player[inputIdentifier].value = value;
+        player[inputIdentifier].touched = true;
+      }
+      debugger;
+      return player;
+    });
+    // const updatedSessionPlayers = [
+    //   ...sessionPlayers,
+    //   (sessionPlayers[position][inputIdentifier]: updatedPlayerItem),
+    // ];
+    // debugger;
+    // updatedPlayerItem.valid = Utils.checkValidity(
+    //   value,
+    //   updatedPlayerItem.validation,
+    //   updatedSessionPlayers
+    // );
+
+    const updatedForm = {
+      ...this.state.form,
       sessionPlayers: updatedSessionPlayers,
-    }));
+    };
+    // let isFormValid = this.validateForm(updatedForm);
+    debugger;
+    this.setState(
+      (prevState) => {
+        return {
+          ...prevState,
+          // form: updatedForm,
+          // isFormValid,
+        };
+      },
+      () => {
+        console.log(this.state);
+      }
+    );
   };
 
   recordSessionHandler = (e) => {
@@ -203,15 +263,18 @@ class ResultsForm extends Component {
   };
 
   render() {
-    const inputPlayerCards = this.state.resultsForm.sessionPlayers.map(
+    const isAddPlayerBtnDisabled =
+      this.state.form.sessionPlayers.length >= this.context.maxPlayers;
+
+    const inputPlayerCards = this.state.form.sessionPlayers.map(
       (sPlayer, i) => (
         <PlayerScoreInputCard
           key={i}
           index={i + 1}
           players={this.context.players}
           sessionPlayer={sPlayer}
-          selectName={this.playerSelectedHandler.bind(this)}
-          writeScore={this.changePlayerScoreHandler.bind(this)}
+          selectName={this.sessionPlayersChangeHandler.bind(this)}
+          writeScore={this.sessionPlayersChangeHandler.bind(this)}
           deletePlayerCard={this.deletePlayerCardHandler.bind(this)}
         />
       )
@@ -230,7 +293,7 @@ class ResultsForm extends Component {
             </label>
             <DatePicker
               className=""
-              selected={this.state.resultsForm.gameDate.value}
+              selected={this.state.form.gameDate.value}
               onChange={(value) => this.inputChangeHandler(value, 'gameDate')}
             />
           </div>
@@ -239,11 +302,11 @@ class ResultsForm extends Component {
               label="Game"
               name="gameId"
               type="text"
-              invalid={!this.state.resultsForm.gameId.valid}
-              touched={this.state.resultsForm.gameId.touched}
+              validation={this.state.form.gameId.valid}
+              touched={this.state.form.gameId.touched}
               inputtype="select"
               items={this.context.games}
-              value={this.state.resultsForm.gameId.value || ''}
+              value={this.state.form.gameId.value || ''}
               changed={(event) =>
                 this.inputChangeHandler(event.target.value, event.target.name)
               }
@@ -254,13 +317,18 @@ class ResultsForm extends Component {
 
         <div className="d-flex justify-content-center mt-3">
           <button
+            disabled={isAddPlayerBtnDisabled}
             className="btn btn-info mr-3"
             type="button"
             onClick={this.addPlayerCardHandler}
           >
             + Add Player
           </button>
-          <button className="btn btn-success" type="submit">
+          <button
+            disabled={!this.state.isFormValid}
+            className="btn btn-success"
+            type="submit"
+          >
             Submit Results
           </button>
         </div>

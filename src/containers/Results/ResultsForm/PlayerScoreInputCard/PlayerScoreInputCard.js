@@ -10,7 +10,6 @@ const playerScoreInputCard = (props) => {
     writeScore,
     deletePlayerCard,
   } = props;
-  console.log(sessionPlayer);
 
   const closeCardBtn =
     index > 2 ? (
@@ -31,26 +30,30 @@ const playerScoreInputCard = (props) => {
         <div className="col-md-6">
           <Input
             label="Player"
-            name="score"
+            name="playerId"
             type="text"
-            errorMessage={sessionPlayer.id.errorMessage || ''}
-            invalid={!sessionPlayer.id.valid}
-            touched={sessionPlayer.id.touched}
+            error={sessionPlayer.playerId.error || ''}
+            validation={sessionPlayer.playerId.valid}
+            touched={sessionPlayer.playerId.touched}
             inputtype="select"
             items={players}
-            value={sessionPlayer.id.value || ''}
-            changed={(event) => selectName(event.target.value, index - 1)}
+            value={sessionPlayer.playerId.value || ''}
+            changed={(event) =>
+              selectName(event.target.value, index - 1, event.target.name)
+            }
           />
         </div>
         <div className="col-md-6">
           <Input
             label="Score"
             name="score"
-            invalid={!sessionPlayer.score.valid}
+            validation={sessionPlayer.score.valid}
             touched={sessionPlayer.score.touched}
             inputtype="input"
             value={sessionPlayer.score.value || ''}
-            changed={(event) => writeScore(event.target.value, index - 1)}
+            changed={(event) =>
+              writeScore(event.target.value, index - 1, event.target.name)
+            }
           />
         </div>
       </div>
