@@ -7,7 +7,7 @@ class Utils {
     return objectMap;
   }
 
-  static checkValidity(value, rules, players) {
+  static checkValidity(value, rules, isPlayerSelectedTwice = false) {
     let isValid = true;
     let error = null;
 
@@ -37,10 +37,24 @@ class Utils {
       }
     }
 
+    if (rules.numeric) {
+      const numericValue = +value;
+      isValid = Number.isInteger(numericValue) && numericValue >= 0 && isValid;
+
+      if (!isValid) {
+        error = 'Input value must be a number!';
+
+        return {
+          value: isValid,
+          error,
+        };
+      }
+    }
+
     if (rules.different) {
-      players.sort(
-        (a, b) => (isValid = a.playerId.value !== b.playerId.value && isValid)
-      );
+      if (isPlayerSelectedTwice) {
+        isValid = !isPlayerSelectedTwice && isValid;
+      }
 
       if (!isValid) {
         error = 'Please select unselected player!';
@@ -56,6 +70,34 @@ class Utils {
       error,
     };
   }
+
+  static validateForm = (form) => {
+    let isFormValid = true;
+
+    for (let inputIdentifier in form) {
+      const inputField = form[inputIdentifier];
+      if (!inputField.validation && !Array.isArray(inputField)) {
+        continue;
+      }
+
+      if (!Array.isArray(inputField)) {
+        isFormValid = inputField.valid.value && isFormValid;
+        if (!isFormValid) {
+          break;
+        }
+      } else {
+        inputField.map((input) => {
+          for (let nestedInput in input) {
+            isFormValid = input[nestedInput].valid.value && isFormValid;
+          }
+        });
+        if (!isFormValid) {
+          break;
+        }
+      }
+    }
+    return isFormValid;
+  };
 }
 
 export default Utils;

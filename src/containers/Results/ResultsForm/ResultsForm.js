@@ -44,6 +44,7 @@ class ResultsForm extends Component {
               value: null,
               validation: {
                 required: true,
+                numeric: true,
               },
               valid: {
                 value: false,
@@ -69,6 +70,7 @@ class ResultsForm extends Component {
               value: null,
               validation: {
                 required: true,
+                numeric: true,
               },
               valid: {
                 value: false,
@@ -83,37 +85,10 @@ class ResultsForm extends Component {
     };
 
     this.initialState = this.state;
+    this.selectedPlayers = [];
   }
 
   static contextType = Context;
-
-  validateForm = (form) => {
-    let isFormValid = true;
-
-    for (let inputIdentifier in form) {
-      const inputField = form[inputIdentifier];
-      if (!inputField.validation && !Array.isArray(inputField)) {
-        continue;
-      }
-
-      if (!Array.isArray(inputField)) {
-        isFormValid = inputField.valid.value && isFormValid;
-        if (!isFormValid) {
-          break;
-        }
-      } else {
-        inputField.map((input) => {
-          for (let nestedInput in input) {
-            isFormValid = input[nestedInput].valid.value && isFormValid;
-          }
-        });
-        if (!isFormValid) {
-          break;
-        }
-      }
-    }
-    return isFormValid;
-  };
 
   addPlayerCardHandler = () => {
     const emptyPlayerObj = {
@@ -121,6 +96,7 @@ class ResultsForm extends Component {
         value: null,
         validation: {
           required: true,
+          different: true,
         },
         valid: {
           value: false,
@@ -132,6 +108,7 @@ class ResultsForm extends Component {
         value: null,
         validation: {
           required: true,
+          numeric: true,
         },
         valid: {
           value: false,
@@ -146,7 +123,7 @@ class ResultsForm extends Component {
       ...this.state.form,
       sessionPlayers: updatedSessionPlayers,
     };
-    let isFormValid = this.validateForm(updatedForm);
+    let isFormValid = Utils.validateForm(updatedForm);
 
     this.setState((prevState) => {
       return {
@@ -166,7 +143,7 @@ class ResultsForm extends Component {
       ...this.state.form,
       sessionPlayers: updatedSessionPlayers,
     };
-    let isFormValid = this.validateForm(updatedForm);
+    let isFormValid = Utils.validateForm(updatedForm);
 
     this.setState((prevState) => {
       return {
@@ -194,7 +171,7 @@ class ResultsForm extends Component {
       ...this.state.form,
       [inputIdentifier]: updatedFormElement,
     };
-    let isFormValid = this.validateForm(updatedForm);
+    let isFormValid = Utils.validateForm(updatedForm);
 
     this.setState({
       form: updatedForm,
@@ -202,52 +179,81 @@ class ResultsForm extends Component {
     });
   };
 
-  sessionPlayersChangeHandler = (value, position, inputIdentifier) => {
-    // const updatedFormElement = { ...this.state.form[inputIdentifier] };
-    // const stringifiedForm = JSON.stringify(this.state.form);
-    // const updatedForm = JSON.parse(stringifiedForm);
-    const sessionPlayers = [...this.state.form.sessionPlayers];
-    debugger;
-    // const updatedPlayerPosition = sessionPlayers[position];
-    // updatedPlayerPosition[inputIdentifier].value = value;
-    // updatedPlayerPosition[inputIdentifier].touched = true;
+  selectPlayersHandler = async (value, position) => {
+    const stringifiedForm = JSON.stringify(this.state.form);
+    const form = JSON.parse(stringifiedForm);
+    const sessionPlayers = [...form.sessionPlayers];
+    const selectedPlayers = this.selectedPlayers;
+    let isPlayerSelectedTwice = false;
 
-    // console.log(updatedPlayerPosition);
-
-    let players = [];
-    debugger;
     const updatedSessionPlayers = sessionPlayers.map((player, i) => {
       if (i === position) {
-        player[inputIdentifier].value = value;
-        player[inputIdentifier].touched = true;
+        if (!selectedPlayers.includes(value)) {
+          selectedPlayers.push(value);
+        } else {
+          isPlayerSelectedTwice = true;
+        }
+
+        player.playerId.touched = true;
+        player.playerId.valid = Utils.checkValidity(
+          value,
+          player.playerId.validation,
+          isPlayerSelectedTwice
+        );
+
+        if (player.playerId.valid.value) {
+          player.playerId.value = value;
+        } else {
+          player.playerId.value = null;
+          selectedPlayers.splice(position, 1);
+        }
       }
-      debugger;
       return player;
     });
-    // const updatedSessionPlayers = [
-    //   ...sessionPlayers,
-    //   (sessionPlayers[position][inputIdentifier]: updatedPlayerItem),
-    // ];
-    // debugger;
-    // updatedPlayerItem.valid = Utils.checkValidity(
-    //   value,
-    //   updatedPlayerItem.validation,
-    //   updatedSessionPlayers
-    // );
 
     const updatedForm = {
       ...this.state.form,
       sessionPlayers: updatedSessionPlayers,
     };
-    // let isFormValid = this.validateForm(updatedForm);
-    debugger;
+    let isFormValid = Utils.validateForm(updatedForm);
+
+    this.setState({
+      form: updatedForm,
+      isFormValid,
+    });
+  };
+
+  playersScoresHandler = async (value, position) => {
+    const stringifiedForm = JSON.stringify(this.state.form);
+    const form = JSON.parse(stringifiedForm);
+    const sessionPlayers = [...form.sessionPlayers];
+
+    const updatedSessionPlayers = sessionPlayers.map((player, i) => {
+      if (i === position) {
+        player.score.touched = true;
+        player.score.valid = Utils.checkValidity(
+          value,
+          player.score.validation
+        );
+        if (player.score.valid.value) {
+          player.score.value = value;
+        } else {
+          player.score.value = null;
+        }
+      }
+      return player;
+    });
+
+    const updatedForm = {
+      ...this.state.form,
+      sessionPlayers: updatedSessionPlayers,
+    };
+    let isFormValid = Utils.validateForm(updatedForm);
+
     this.setState(
-      (prevState) => {
-        return {
-          ...prevState,
-          // form: updatedForm,
-          // isFormValid,
-        };
+      {
+        form: updatedForm,
+        isFormValid,
       },
       () => {
         console.log(this.state);
@@ -258,7 +264,7 @@ class ResultsForm extends Component {
   recordSessionHandler = (e) => {
     e.preventDefault();
 
-    this.context.recordSession(this.state);
+    this.context.recordSession(this.state.form);
     this.setState(this.initialState);
   };
 
@@ -273,8 +279,8 @@ class ResultsForm extends Component {
           index={i + 1}
           players={this.context.players}
           sessionPlayer={sPlayer}
-          selectName={this.sessionPlayersChangeHandler.bind(this)}
-          writeScore={this.sessionPlayersChangeHandler.bind(this)}
+          selectName={this.selectPlayersHandler.bind(this)}
+          writeScore={this.playersScoresHandler.bind(this)}
           deletePlayerCard={this.deletePlayerCardHandler.bind(this)}
         />
       )

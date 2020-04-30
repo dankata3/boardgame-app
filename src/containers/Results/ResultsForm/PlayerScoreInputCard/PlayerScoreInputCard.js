@@ -31,29 +31,25 @@ const playerScoreInputCard = (props) => {
           <Input
             label="Player"
             name="playerId"
-            type="text"
             error={sessionPlayer.playerId.error || ''}
             validation={sessionPlayer.playerId.valid}
             touched={sessionPlayer.playerId.touched}
             inputtype="select"
             items={players}
             value={sessionPlayer.playerId.value || ''}
-            changed={(event) =>
-              selectName(event.target.value, index - 1, event.target.name)
-            }
+            changed={(event) => selectName(event.target.value, index - 1)}
           />
         </div>
         <div className="col-md-6">
           <Input
             label="Score"
             name="score"
+            type="number"
             validation={sessionPlayer.score.valid}
             touched={sessionPlayer.score.touched}
             inputtype="input"
             value={sessionPlayer.score.value || ''}
-            changed={(event) =>
-              writeScore(event.target.value, index - 1, event.target.name)
-            }
+            changed={(event) => writeScore(event.target.value, index - 1)}
           />
         </div>
       </div>

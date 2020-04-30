@@ -138,8 +138,8 @@ class App extends Component {
 
   addPlayer = (player) => {
     const formattedGameObj = {
-      name: player.form.name.value,
-      color: player.form.color.value,
+      name: player.name.value,
+      color: player.color.value,
     };
     axiosInstance.post('/players.json', formattedGameObj).then((response) => {
       this.setState((prevState) => {
@@ -151,6 +151,7 @@ class App extends Component {
         const players = prevState.players.concat(formattedPlayer);
 
         return {
+          ...prevState,
           players,
         };
       });
@@ -158,10 +159,9 @@ class App extends Component {
   };
 
   addGame = (game) => {
-    debugger;
     const formattedGameObj = {
-      name: game.form.name.value,
-      bggLink: game.form.bggLink.value,
+      name: game.name.value,
+      bggLink: game.bggLink.value,
     };
     axiosInstance.post('/games.json', formattedGameObj).then((response) => {
       this.setState((prevState) => {
@@ -173,6 +173,7 @@ class App extends Component {
         const games = prevState.games.concat(formattedGame);
 
         return {
+          ...prevState,
           games,
         };
       });
@@ -217,11 +218,14 @@ class App extends Component {
               sessionPlayers: resultsResponse.data[key].sessionPlayers,
             });
           }
-
-          this.setState({
-            players,
-            games,
-            gameSessions,
+          debugger;
+          this.setState((prevState) => {
+            return {
+              ...prevState,
+              players,
+              games,
+              gameSessions,
+            };
           });
         })
       )

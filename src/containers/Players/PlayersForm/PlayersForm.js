@@ -54,6 +54,8 @@ export class PlayersForm extends Component {
   inputChangeHandler = (value, inputIdentifier) => {
     const updatedForm = { ...this.state.form };
     const updatedFormElement = { ...updatedForm[inputIdentifier] };
+    let isFormValid = false;
+
     updatedFormElement.touched = true;
     updatedFormElement.value = value;
 
@@ -63,27 +65,19 @@ export class PlayersForm extends Component {
         updatedFormElement.validation
       );
     }
-    let isFormValid = true;
+    updatedForm[inputIdentifier] = updatedFormElement;
+    isFormValid = Utils.validateForm(updatedForm);
 
-    // for (let inputIdentifier in updatedForm) {
-    //   isFormValid = updatedForm[inputIdentifier].valid && isFormValid;
-    // }
-    this.setState((prevState) => {
-      return {
-        ...prevState,
-        form: {
-          ...prevState.form,
-          [inputIdentifier]: updatedFormElement,
-        },
-        isFormValid,
-      };
+    this.setState({
+      form: updatedForm,
+      isFormValid,
     });
   };
 
   addPlayerHandler = (e) => {
     e.preventDefault();
 
-    this.context.addPlayer(this.state);
+    this.context.addPlayer(this.state.form);
     this.setState(this.initialState);
   };
 
@@ -99,7 +93,7 @@ export class PlayersForm extends Component {
             label="Name"
             name="name"
             type="text"
-            validation={this.state.form.name.valid.value}
+            validation={this.state.form.name.valid}
             touched={this.state.form.name.touched}
             inputtype="input"
             value={this.state.form.name.value}
@@ -118,7 +112,11 @@ export class PlayersForm extends Component {
           />
         </div>
         <div className="d-flex justify-content-center mt-3">
-          <button className="btn btn-success" type="submit">
+          <button
+            disabled={!this.state.isFormValid}
+            className="btn btn-success"
+            type="submit"
+          >
             Add Player
           </button>
         </div>

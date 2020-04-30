@@ -1,19 +1,20 @@
 import React, { Fragment, useContext } from 'react';
 import PlayersForm from './PlayersForm/PlayersForm';
 import Context from '../../context/context';
+import Card from '../../components/Card/Card';
 
 const players = () => {
   const { players } = useContext(Context);
-  const playerCard = players.map((player) => (
-    <li key={player.id} style={{ color: player.color }}>
-      {player.name}
-    </li>
+  const playerList = players.map((player) => (
+    <Card key={player.id}>
+      <p style={{ color: player.color }}>{player.name}</p>
+    </Card>
   ));
 
   return (
     <Fragment>
       <PlayersForm />
-      <ul>{playerCard}</ul>
+      <ul className="list-group">{playerList}</ul>
     </Fragment>
   );
 };

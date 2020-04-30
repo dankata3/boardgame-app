@@ -6,13 +6,13 @@ import Utils from '../../../../utils/utils';
 
 const resultRow = (props) => {
   const { gameId, date, sessionPlayers } = props.gameSession;
-
+  debugger;
   const { players, games, maxPlayers } = useContext(Context);
   const gamesMap = Utils.mapObjectById(games);
   const playersMap = Utils.mapObjectById(players);
 
   const formattedDate = moment(date).format('DD/MM/YYYY');
-  const sessionGame = gamesMap[gameId].name;
+  const sessionGame = gamesMap[gameId.value].name;
   const playersScoresCells = [];
 
   for (let i = 0; i < maxPlayers; i++) {
@@ -25,9 +25,9 @@ const resultRow = (props) => {
 
   const playerScoreColumns = playersScoresCells.map((player, i) => {
     if (player) {
-      const playerName = playersMap[player.id]['name'];
-      const playerColor = playersMap[player.id]['color'];
-      const playerScore = player.score;
+      const playerName = playersMap[player.playerId.value]['name'];
+      const playerColor = playersMap[player.playerId.value]['color'];
+      const playerScore = player.score.value;
       return (
         <td key={i}>
           <span style={{ color: playerColor }}>{playerName}</span> /

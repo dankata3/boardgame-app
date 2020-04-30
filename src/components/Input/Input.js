@@ -16,7 +16,7 @@ const input = (props) => {
   let errorMessage;
   const inputClasses = ['form-control'];
 
-  if (!validation.value && touched) {
+  if (validation && !validation.value && touched) {
     inputClasses.push('input-error');
 
     errorMessage = <p className="input-error-message">{validation.error}</p>;

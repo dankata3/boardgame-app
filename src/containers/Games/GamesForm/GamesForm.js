@@ -43,6 +43,8 @@ export class GameForm extends Component {
   inputChangeHandler = (value, inputIdentifier) => {
     const updatedForm = { ...this.state.form };
     const updatedFormElement = { ...updatedForm[inputIdentifier] };
+    let isFormValid = false;
+
     updatedFormElement.touched = true;
     updatedFormElement.value = value;
 
@@ -52,26 +54,13 @@ export class GameForm extends Component {
         updatedFormElement.validation
       );
     }
-    let isFormValid = true;
+    updatedForm[inputIdentifier] = updatedFormElement;
+    isFormValid = Utils.validateForm(updatedForm);
 
-    // for (let inputIdentifier in updatedform) {
-    //   isFormValid = updatedform[inputIdentifier].valid && isFormValid;
-    // }
-    this.setState(
-      (prevState) => {
-        return {
-          ...prevState,
-          form: {
-            ...prevState.form,
-            [inputIdentifier]: updatedFormElement,
-          },
-          isFormValid,
-        };
-      },
-      () => {
-        console.log(this.state);
-      }
-    );
+    this.setState({
+      form: updatedForm,
+      isFormValid,
+    });
   };
 
   // writeNameHandler = (e) => {
@@ -89,7 +78,7 @@ export class GameForm extends Component {
   addGameHandler = (e) => {
     e.preventDefault();
 
-    this.context.addGame(this.state);
+    this.context.addGame(this.state.form);
     this.setState(this.initialState);
   };
 
@@ -106,7 +95,7 @@ export class GameForm extends Component {
             name="name"
             type="text"
             inputtype="input"
-            validation={this.state.form.name.valid.value}
+            validation={this.state.form.name.valid}
             touched={this.state.form.name.touched}
             value={this.state.form.name.value}
             changed={(event) =>
@@ -120,7 +109,7 @@ export class GameForm extends Component {
             name="bggLink"
             type="text"
             inputtype="input"
-            validation={this.state.form.bggLink.valid.value}
+            validation={this.state.form.bggLink.valid}
             touched={this.state.form.bggLink.touched}
             value={this.state.form.bggLink.value}
             changed={(event) =>
