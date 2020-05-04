@@ -112,8 +112,18 @@ class App extends Component {
   }
 
   recordSession = (gameSession) => {
+    const formattedGameSessionObj = {
+      gameDate: gameSession.gameDate.value,
+      gameId: gameSession.gameId.value,
+      sessionPlayers: gameSession.sessionPlayers.map((player) => {
+        return {
+          playerId: player.playerId.value,
+          score: player.score.value,
+        };
+      }),
+    };
     axiosInstance
-      .post('/gameSessions.json', gameSession)
+      .post('/gameSessions.json', formattedGameSessionObj)
       .then((response) => {
         this.setState((prevState) => {
           const sessionFormattedObj = {
@@ -180,59 +190,60 @@ class App extends Component {
     });
   };
 
-  componentDidMount() {
-    const gamesRequest = axiosInstance.get('/games.json');
-    const playersRequest = axiosInstance.get('/players.json');
-    const resultsRequest = axiosInstance.get('/gameSessions.json');
+  // componentDidMount() {
+  //   const gamesRequest = axiosInstance.get('/games.json');
+  //   const playersRequest = axiosInstance.get('/players.json');
+  //   const resultsRequest = axiosInstance.get('/gameSessions.json');
 
-    axios
-      .all([gamesRequest, playersRequest, resultsRequest])
-      .then(
-        axios.spread((...responses) => {
-          const [gamesResponse, playersResponse, resultsResponse] = responses;
-          let games = [];
-          let players = [];
-          let gameSessions = [];
+  //   axios
+  //     .all([gamesRequest, playersRequest, resultsRequest])
+  //     .then(
+  //       axios.spread((...responses) => {
+  //         const [gamesResponse, playersResponse, resultsResponse] = responses;
+  //         let games = [];
+  //         let players = [];
+  //         let gameSessions = [];
 
-          for (let key in gamesResponse.data) {
-            games.push({
-              id: key,
-              name: gamesResponse.data[key].name,
-              bggLink: gamesResponse.data[key].bggLink,
-            });
-          }
+  //         for (let key in gamesResponse.data) {
+  //           games.push({
+  //             id: key,
+  //             name: gamesResponse.data[key].name,
+  //             bggLink: gamesResponse.data[key].bggLink,
+  //           });
+  //         }
 
-          for (let key in playersResponse.data) {
-            players.push({
-              id: key,
-              name: playersResponse.data[key].name,
-              color: playersResponse.data[key].color,
-            });
-          }
+  //         for (let key in playersResponse.data) {
+  //           players.push({
+  //             id: key,
+  //             name: playersResponse.data[key].name,
+  //             color: playersResponse.data[key].color,
+  //           });
+  //         }
 
-          for (let key in resultsResponse.data) {
-            gameSessions.push({
-              sessionId: key,
-              gameDate: resultsResponse.data[key].gameDate,
-              gameId: resultsResponse.data[key].gameId,
-              sessionPlayers: resultsResponse.data[key].sessionPlayers,
-            });
-          }
-          debugger;
-          this.setState((prevState) => {
-            return {
-              ...prevState,
-              players,
-              games,
-              gameSessions,
-            };
-          });
-        })
-      )
-      .catch((error) => {
-        console.log(error);
-      });
-  }
+  //         for (let key in resultsResponse.data) {
+  //           gameSessions.push({
+  //             sessionId: key,
+  //             gameDate: resultsResponse.data[key].gameDate,
+  //             gameId: resultsResponse.data[key].gameId,
+  //             sessionPlayers: resultsResponse.data[key].sessionPlayers,
+  //           });
+  //         }
+  //         debugger;
+  //         this.setState((prevState) => {
+  //           return {
+  //             ...prevState,
+  //             players,
+  //             games,
+  //             gameSessions,
+  //           };
+  //         });
+  //       })
+  //     )
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  // }
+
   render() {
     return (
       <div>

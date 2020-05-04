@@ -3,6 +3,8 @@ import { TwitterPicker } from 'react-color';
 import Context from '../../../context/context';
 import Input from '../../../components/Input/Input';
 import Utils from '../../../utils/utils';
+import { connect } from 'react-redux';
+import * as actionTypes from '../../../store/actions';
 
 export class PlayersForm extends Component {
   constructor(props) {
@@ -33,23 +35,6 @@ export class PlayersForm extends Component {
   }
 
   static contextType = Context;
-
-  // inputChangeHandler = (value, inputIdentifier) => {
-  //   const updatedFormElement = { ...this.state.playersForm[inputIdentifier] };
-  //   updatedFormElement.touched = true;
-  //   updatedFormElement.value = value;
-  //   debugger;
-  //   if (updatedFormElement.validation) {
-  //     updatedFormElement.valid = Utils.checkValidity(
-  //       value,
-  //       updatedFormElement.validation
-  //     );
-  //   }
-
-  //   this.setState({
-  //     [inputIdentifier]: updatedFormElement,
-  //   });
-  // };
 
   inputChangeHandler = (value, inputIdentifier) => {
     const updatedForm = { ...this.state.form };
