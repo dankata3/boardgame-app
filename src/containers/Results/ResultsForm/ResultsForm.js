@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker-cssmodules.css';
-import Context from '../../../context/context';
 import PlayerScoreInputCard from './PlayerScoreInputCard/PlayerScoreInputCard';
 import Input from '../../../components/Input/Input';
 import Utils from '../../../utils/utils';
+
+import { connect } from 'react-redux';
+import { recordNewSession } from '../../../store/actions';
 
 class ResultsForm extends Component {
   constructor() {
@@ -87,8 +89,6 @@ class ResultsForm extends Component {
     this.initialState = this.state;
     this.selectedPlayers = [];
   }
-
-  static contextType = Context;
 
   addPlayerCardHandler = () => {
     const emptyPlayerObj = {
@@ -264,20 +264,20 @@ class ResultsForm extends Component {
   recordSessionHandler = (e) => {
     e.preventDefault();
 
-    this.context.recordSession(this.state.form);
+    this.props.addGameSession(this.state.form);
     this.setState(this.initialState);
   };
 
   render() {
     const isAddPlayerBtnDisabled =
-      this.state.form.sessionPlayers.length >= this.context.maxPlayers;
+      this.state.form.sessionPlayers.length >= this.props.maxPlayers;
 
     const inputPlayerCards = this.state.form.sessionPlayers.map(
       (sPlayer, i) => (
         <PlayerScoreInputCard
           key={i}
           index={i + 1}
-          players={this.context.players}
+          players={this.props.players}
           sessionPlayer={sPlayer}
           selectName={this.selectPlayersHandler.bind(this)}
           writeScore={this.playersScoresHandler.bind(this)}
@@ -311,7 +311,7 @@ class ResultsForm extends Component {
               validation={this.state.form.gameId.valid}
               touched={this.state.form.gameId.touched}
               inputtype="select"
-              items={this.context.games}
+              items={this.props.games}
               value={this.state.form.gameId.value || ''}
               changed={(event) =>
                 this.inputChangeHandler(event.target.value, event.target.name)
@@ -343,4 +343,16 @@ class ResultsForm extends Component {
   }
 }
 
-export default ResultsForm;
+const mapStateToProps = (state) => {
+  return {
+    maxPlayers: state.maxPlayers,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addGameSession: (gamesSession) => dispatch(recordNewSession(gamesSession)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ResultsForm);

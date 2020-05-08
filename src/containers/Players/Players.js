@@ -1,22 +1,31 @@
-import React, { Fragment, useContext } from 'react';
+import React, { Component, Fragment } from 'react';
 import PlayersForm from './PlayersForm/PlayersForm';
-import Context from '../../context/context';
 import Card from '../../components/Card/Card';
 
-const players = () => {
-  const { players } = useContext(Context);
-  const playerList = players.map((player) => (
-    <Card key={player.id}>
-      <p style={{ color: player.color }}>{player.name}</p>
-    </Card>
-  ));
+import { connect } from 'react-redux';
+import { addPlayer } from '../../store/actions';
 
-  return (
-    <Fragment>
-      <PlayersForm />
-      <ul className="list-group">{playerList}</ul>
-    </Fragment>
-  );
+class Players extends Component {
+  render() {
+    const playerList = this.props.players.map((player) => (
+      <Card key={player.id}>
+        <p style={{ color: player.color }}>{player.name}</p>
+      </Card>
+    ));
+
+    return (
+      <Fragment>
+        <PlayersForm />
+        <ul className="list-group">{playerList}</ul>
+      </Fragment>
+    );
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    players: state.players,
+  };
 };
 
-export default players;
+export default connect(mapStateToProps)(Players);

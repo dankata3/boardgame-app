@@ -1,12 +1,17 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import ResultRow from './ResultRow/ResultRow';
-import Context from '../../../context/context';
 
 const resultsTable = (props) => {
-  const { gameSessions } = useContext(Context);
-  const resultRows = gameSessions.map((session, i) => {
+  const resultRows = props.gameSessions.map((session, i) => {
     return (
-      <ResultRow key={session.sessionId} index={i + 1} gameSession={session} />
+      <ResultRow
+        key={session.sessionId}
+        index={i + 1}
+        players={props.players}
+        games={props.games}
+        gameSession={session}
+        maxPlayers={props.maxPlayers}
+      />
     );
   });
 

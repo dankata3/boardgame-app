@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import Context from '../../../context/context';
 import Input from '../../../components/Input/Input';
 import Utils from '../../../utils/utils';
 
-export class GameForm extends Component {
+import { connect } from 'react-redux';
+import { recordNewGame } from '../../../store/actions';
+
+class GamesForm extends Component {
   constructor() {
     super();
 
@@ -36,9 +38,9 @@ export class GameForm extends Component {
       },
       isFormValid: false,
     };
+
     this.initialState = this.state;
   }
-  static contextType = Context;
 
   inputChangeHandler = (value, inputIdentifier) => {
     const updatedForm = { ...this.state.form };
@@ -63,22 +65,10 @@ export class GameForm extends Component {
     });
   };
 
-  // writeNameHandler = (e) => {
-  //   this.setState({
-  //     name: e.target.value,
-  //   });
-  // };
-
-  // writeBggLinkHandler = (e) => {
-  //   this.setState({
-  //     bggLink: e.target.value,
-  //   });
-  // };
-
   addGameHandler = (e) => {
     e.preventDefault();
 
-    this.context.addGame(this.state.form);
+    this.props.addGame(this.state.form);
     this.setState(this.initialState);
   };
 
@@ -131,4 +121,10 @@ export class GameForm extends Component {
   }
 }
 
-export default GameForm;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addGame: (game) => dispatch(recordNewGame(game)),
+  };
+};
+
+export default connect(null, mapDispatchToProps)(GamesForm);

@@ -1,22 +1,30 @@
-import React, { Fragment, useContext, useEffect } from 'react';
-import Context from '../../context/context';
+import React, { Component, Fragment } from 'react';
 import GamesForm from './GamesForm/GamesForm';
+
 import Card from '../../components/Card/Card';
 
-const games = () => {
-  const { games } = useContext(Context);
-  const gamesList = games.map((game) => (
-    <Card key={game.id}>
-      <a href={game.bggLink}>{game.name}</a>
-    </Card>
-  ));
+import { connect } from 'react-redux';
 
-  return (
-    <Fragment>
-      <GamesForm />
-      <ul className="list-group">{gamesList}</ul>
-    </Fragment>
-  );
+class Games extends Component {
+  render() {
+    const gamesList = this.props.games.map((game) => (
+      <Card key={game.id}>
+        <a href={game.bggLink}>{game.name}</a>
+      </Card>
+    ));
+    return (
+      <Fragment>
+        <GamesForm />
+        <ul className="list-group">{gamesList}</ul>
+      </Fragment>
+    );
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    games: state.games,
+  };
 };
 
-export default games;
+export default connect(mapStateToProps)(Games);

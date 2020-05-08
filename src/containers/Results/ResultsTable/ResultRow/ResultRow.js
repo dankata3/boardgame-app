@@ -1,18 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import moment from 'moment';
-import PropTypes from 'prop-types';
-import Context from '../../../../context/context';
 import Utils from '../../../../utils/utils';
 
 const resultRow = (props) => {
-  const { gameId, date, sessionPlayers } = props.gameSession;
-  debugger;
-  const { players, games, maxPlayers } = useContext(Context);
+  const { players, games, gameSession, maxPlayers } = props;
+  const { gameId, gameDate, sessionPlayers } = gameSession;
+
   const gamesMap = Utils.mapObjectById(games);
   const playersMap = Utils.mapObjectById(players);
 
-  const formattedDate = moment(date).format('DD/MM/YYYY');
-  const sessionGame = gamesMap[gameId.value].name;
+  const formattedDate = moment(gameDate).format('DD/MM/YYYY');
+  const sessionGame = gamesMap[gameId].name;
   const playersScoresCells = [];
 
   for (let i = 0; i < maxPlayers; i++) {
@@ -25,9 +23,9 @@ const resultRow = (props) => {
 
   const playerScoreColumns = playersScoresCells.map((player, i) => {
     if (player) {
-      const playerName = playersMap[player.playerId.value]['name'];
-      const playerColor = playersMap[player.playerId.value]['color'];
-      const playerScore = player.score.value;
+      const playerName = playersMap[player.playerId]['name'];
+      const playerColor = playersMap[player.playerId]['color'];
+      const playerScore = player.score;
       return (
         <td key={i}>
           <span style={{ color: playerColor }}>{playerName}</span> /
@@ -48,12 +46,5 @@ const resultRow = (props) => {
     </tr>
   );
 };
-
-// resultRow.propTypes = {
-//   sessionId: PropTypes.number,
-//   gameId: PropTypes.number,
-//   date: PropTypes.string,
-//   sessionPlayers: PropTypes.array,
-// };
 
 export default resultRow;

@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
 import { TwitterPicker } from 'react-color';
-import Context from '../../../context/context';
 import Input from '../../../components/Input/Input';
 import Utils from '../../../utils/utils';
+
 import { connect } from 'react-redux';
-import * as actionTypes from '../../../store/actions';
+import { recordNewPlayer } from '../../../store/actions';
 
-export class PlayersForm extends Component {
-  constructor(props) {
-    super(props);
-
+class PlayersForm extends Component {
+  constructor() {
+    super();
     this.state = {
       form: {
         name: {
@@ -30,11 +29,8 @@ export class PlayersForm extends Component {
       },
       isFormValid: false,
     };
-
     this.initialState = this.state;
   }
-
-  static contextType = Context;
 
   inputChangeHandler = (value, inputIdentifier) => {
     const updatedForm = { ...this.state.form };
@@ -62,7 +58,7 @@ export class PlayersForm extends Component {
   addPlayerHandler = (e) => {
     e.preventDefault();
 
-    this.context.addPlayer(this.state.form);
+    this.props.addPlayer(this.state.form);
     this.setState(this.initialState);
   };
 
@@ -70,7 +66,7 @@ export class PlayersForm extends Component {
     return (
       <form
         className="card p-3 bg-light app-form"
-        onSubmit={this.addPlayerHandler}
+        onSubmit={(e) => this.addPlayerHandler(e)}
       >
         <legend>Add Player</legend>
         <div className="col-md-6 form-group">
@@ -110,4 +106,10 @@ export class PlayersForm extends Component {
   }
 }
 
-export default PlayersForm;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addPlayer: (player) => dispatch(recordNewPlayer(player)),
+  };
+};
+
+export default connect(null, mapDispatchToProps)(PlayersForm);
