@@ -3,10 +3,11 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 import PlayerScoreInputCard from './PlayerScoreInputCard/PlayerScoreInputCard';
 import Input from '../../../components/Input/Input';
-import Utils from '../../../utils/utils';
+import Spinner from '../../../components/Spinner/Spinner';
+import { checkValidity, validateForm } from '../../../utils/utils';
 
 import { connect } from 'react-redux';
-import { recordNewSession } from '../../../store/actions';
+import { recordNewSession } from '../../../store/actions/results';
 
 class ResultsForm extends Component {
   constructor() {
@@ -123,7 +124,7 @@ class ResultsForm extends Component {
       ...this.state.form,
       sessionPlayers: updatedSessionPlayers,
     };
-    let isFormValid = Utils.validateForm(updatedForm);
+    let isFormValid = validateForm(updatedForm);
 
     this.setState((prevState) => {
       return {
@@ -143,7 +144,7 @@ class ResultsForm extends Component {
       ...this.state.form,
       sessionPlayers: updatedSessionPlayers,
     };
-    let isFormValid = Utils.validateForm(updatedForm);
+    let isFormValid = validateForm(updatedForm);
 
     this.setState((prevState) => {
       return {
@@ -162,7 +163,7 @@ class ResultsForm extends Component {
 
     if (updatedFormElement.validation) {
       updatedFormElement.touched = true;
-      updatedFormElement.valid = Utils.checkValidity(
+      updatedFormElement.valid = checkValidity(
         value,
         updatedFormElement.validation
       );
@@ -171,7 +172,7 @@ class ResultsForm extends Component {
       ...this.state.form,
       [inputIdentifier]: updatedFormElement,
     };
-    let isFormValid = Utils.validateForm(updatedForm);
+    let isFormValid = validateForm(updatedForm);
 
     this.setState({
       form: updatedForm,
@@ -195,7 +196,7 @@ class ResultsForm extends Component {
         }
 
         player.playerId.touched = true;
-        player.playerId.valid = Utils.checkValidity(
+        player.playerId.valid = checkValidity(
           value,
           player.playerId.validation,
           isPlayerSelectedTwice
@@ -215,8 +216,8 @@ class ResultsForm extends Component {
       ...this.state.form,
       sessionPlayers: updatedSessionPlayers,
     };
-    let isFormValid = Utils.validateForm(updatedForm);
-
+    let isFormValid = validateForm(updatedForm);
+    this.selectedPlayers = [];
     this.setState({
       form: updatedForm,
       isFormValid,
@@ -231,10 +232,7 @@ class ResultsForm extends Component {
     const updatedSessionPlayers = sessionPlayers.map((player, i) => {
       if (i === position) {
         player.score.touched = true;
-        player.score.valid = Utils.checkValidity(
-          value,
-          player.score.validation
-        );
+        player.score.valid = checkValidity(value, player.score.validation);
         if (player.score.valid.value) {
           player.score.value = value;
         } else {
@@ -248,17 +246,12 @@ class ResultsForm extends Component {
       ...this.state.form,
       sessionPlayers: updatedSessionPlayers,
     };
-    let isFormValid = Utils.validateForm(updatedForm);
+    let isFormValid = validateForm(updatedForm);
 
-    this.setState(
-      {
-        form: updatedForm,
-        isFormValid,
-      },
-      () => {
-        console.log(this.state);
-      }
-    );
+    this.setState({
+      form: updatedForm,
+      isFormValid,
+    });
   };
 
   recordSessionHandler = (e) => {
@@ -286,11 +279,18 @@ class ResultsForm extends Component {
       )
     );
 
+    let spinner = this.props.recordingSession ? (
+      <div className="backdrop">
+        <Spinner />
+      </div>
+    ) : null;
+
     return (
       <form
         className="card p-3 bg-light app-form"
         onSubmit={this.recordSessionHandler}
       >
+        {spinner}
         <legend className="mb-3">Enter Game Results</legend>
         <div className="row mb-3">
           <div className="col-md-6">
@@ -345,7 +345,8 @@ class ResultsForm extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    maxPlayers: state.maxPlayers,
+    maxPlayers: state.players.maxPlayers,
+    recordingSession: state.gameSessions.recordingSession,
   };
 };
 

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import Input from '../../../components/Input/Input';
-import Utils from '../../../utils/utils';
+import { checkValidity, validateForm } from '../../../utils/utils';
+import Spinner from '../../../components/Spinner/Spinner';
 
 import { connect } from 'react-redux';
-import { recordNewGame } from '../../../store/actions';
+import { recordNewGame } from '../../../store/actions/games';
 
 class GamesForm extends Component {
   constructor() {
@@ -51,13 +52,13 @@ class GamesForm extends Component {
     updatedFormElement.value = value;
 
     if (updatedFormElement.validation) {
-      updatedFormElement.valid = Utils.checkValidity(
+      updatedFormElement.valid = checkValidity(
         value,
         updatedFormElement.validation
       );
     }
     updatedForm[inputIdentifier] = updatedFormElement;
-    isFormValid = Utils.validateForm(updatedForm);
+    isFormValid = validateForm(updatedForm);
 
     this.setState({
       form: updatedForm,
@@ -73,11 +74,18 @@ class GamesForm extends Component {
   };
 
   render() {
+    let spinner = this.props.loadingGames ? (
+      <div className="backdrop">
+        <Spinner />
+      </div>
+    ) : null;
+
     return (
       <form
         className="card p-3 bg-light app-form"
         onSubmit={(e) => this.addGameHandler(e)}
       >
+        {spinner}
         <legend>Add Game</legend>
         <div className="col-md-6 form-group">
           <Input
@@ -121,10 +129,16 @@ class GamesForm extends Component {
   }
 }
 
+const mapStateToProps = (state) => {
+  return {
+    loadingGames: state.games.loadingGames,
+  };
+};
+
 const mapDispatchToProps = (dispatch) => {
   return {
     addGame: (game) => dispatch(recordNewGame(game)),
   };
 };
 
-export default connect(null, mapDispatchToProps)(GamesForm);
+export default connect(mapStateToProps, mapDispatchToProps)(GamesForm);

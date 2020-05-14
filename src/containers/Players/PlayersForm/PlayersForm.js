@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { TwitterPicker } from 'react-color';
 import Input from '../../../components/Input/Input';
-import Utils from '../../../utils/utils';
+import { checkValidity, validateForm } from '../../../utils/utils';
+import Spinner from '../../../components/Spinner/Spinner';
 
 import { connect } from 'react-redux';
-import { recordNewPlayer } from '../../../store/actions';
+import { recordNewPlayer } from '../../../store/actions/players';
 
 class PlayersForm extends Component {
   constructor() {
@@ -41,13 +42,13 @@ class PlayersForm extends Component {
     updatedFormElement.value = value;
 
     if (updatedFormElement.validation) {
-      updatedFormElement.valid = Utils.checkValidity(
+      updatedFormElement.valid = checkValidity(
         value,
         updatedFormElement.validation
       );
     }
     updatedForm[inputIdentifier] = updatedFormElement;
-    isFormValid = Utils.validateForm(updatedForm);
+    isFormValid = validateForm(updatedForm);
 
     this.setState({
       form: updatedForm,
@@ -63,11 +64,17 @@ class PlayersForm extends Component {
   };
 
   render() {
+    let spinner = this.props.loadingPlayers ? (
+      <div className="backdrop">
+        <Spinner />
+      </div>
+    ) : null;
     return (
       <form
         className="card p-3 bg-light app-form"
         onSubmit={(e) => this.addPlayerHandler(e)}
       >
+        {spinner}
         <legend>Add Player</legend>
         <div className="col-md-6 form-group">
           <Input
@@ -106,10 +113,16 @@ class PlayersForm extends Component {
   }
 }
 
+const mapStateToProps = (state) => {
+  return {
+    loadingPlayers: state.players.loadingPlayers,
+  };
+};
+
 const mapDispatchToProps = (dispatch) => {
   return {
     addPlayer: (player) => dispatch(recordNewPlayer(player)),
   };
 };
 
-export default connect(null, mapDispatchToProps)(PlayersForm);
+export default connect(mapStateToProps, mapDispatchToProps)(PlayersForm);

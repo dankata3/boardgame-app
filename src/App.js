@@ -6,10 +6,9 @@ import Layout from './components/Layout/Layout';
 import Games from './containers/Games/Games';
 import Players from './containers/Players/Players';
 import Results from './containers/Results/Results';
-import Spinner from './components/Spinner/Spinner';
 
 import { connect } from 'react-redux';
-import { initAppData } from './store/actions';
+import { initAppData } from './store/actions/results';
 
 class App extends Component {
   constructor() {

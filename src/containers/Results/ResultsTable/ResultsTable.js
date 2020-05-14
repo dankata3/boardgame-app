@@ -11,6 +11,7 @@ const resultsTable = (props) => {
         games={props.games}
         gameSession={session}
         maxPlayers={props.maxPlayers}
+        deleteGameSession={props.deleteGameSessionHandler}
       />
     );
   });
@@ -26,6 +27,7 @@ const resultsTable = (props) => {
           <th>2nd Player</th>
           <th>3rd Player</th>
           <th>4th Player</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>{resultRows}</tbody>

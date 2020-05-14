@@ -2,10 +2,12 @@ import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 
-import { createStore, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
-import reducer from './store/reducer';
+import playersReducer from './store/reducers/players';
+import gamesReducer from './store/reducers/games';
+import gameSessionsReducer from './store/reducers/results';
 
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
@@ -21,8 +23,14 @@ const logger = (store) => {
   };
 };
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const rootReducer = combineReducers({
+  players: playersReducer,
+  games: gamesReducer,
+  gameSessions: gameSessionsReducer,
+});
 const store = createStore(
-  reducer,
+  rootReducer,
   composeEnhancers(applyMiddleware(logger, thunk))
 );
 

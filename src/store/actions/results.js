@@ -1,10 +1,12 @@
-import axiosInstance from '../axios-instance';
+import axiosInstance from '../../axios-instance';
 import axios from 'axios';
 import * as actionTypes from './actionTypes';
+import { setGames } from './games';
+import { setPlayers } from './players';
 
-// Get initial data
 export const initAppData = () => {
   return (dispatch) => {
+    dispatch(fetchDataStart());
     const gamesRequest = axiosInstance.get('/games.json');
     const playersRequest = axiosInstance.get('/players.json');
     const resultsRequest = axiosInstance.get('/gameSessions.json');
@@ -43,7 +45,9 @@ export const initAppData = () => {
             });
           }
 
-          dispatch(setAppData(players, games, gameSessions));
+          dispatch(setPlayers(players));
+          dispatch(setGames(games));
+          dispatch(setGameSessions(gameSessions));
         })
       )
       .catch((error) => {
@@ -52,80 +56,23 @@ export const initAppData = () => {
   };
 };
 
-export const setAppData = (players, games, gameSessions) => {
+export const setGameSessions = (gameSessions) => {
   return {
-    type: actionTypes.SET_DATA,
-    players,
-    games,
+    type: actionTypes.SET_GAME_SESSIONS,
     gameSessions,
   };
 };
 
-// Add Player
-export const recordNewPlayer = (player) => {
-  return (dispatch) => {
-    const formattedGameObj = {
-      name: player.name.value,
-      color: player.color.value,
-    };
-
-    axiosInstance
-      .post('/players.json', formattedGameObj)
-      .then((response) => {
-        const formattedPlayer = {
-          id: response.data.name,
-          name: formattedGameObj.name,
-          color: formattedGameObj.bggLink,
-        };
-
-        dispatch(addPlayer(formattedPlayer));
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-};
-
-export const addPlayer = (player) => {
+export const fetchDataStart = () => {
   return {
-    type: actionTypes.ADD_PLAYER,
-    player,
+    type: actionTypes.FETCH_DATA_START,
   };
 };
 
-// Add Game
-export const recordNewGame = (game) => {
-  return (dispatch) => {
-    const formattedGameObj = {
-      name: game.name.value,
-      bggLink: game.bggLink.value,
-    };
-    axiosInstance
-      .post('/games.json', formattedGameObj)
-      .then((response) => {
-        const formattedGame = {
-          id: response.data.name,
-          name: formattedGameObj.name,
-          bggLink: formattedGameObj.bggLink,
-        };
-        dispatch(addGame(formattedGame));
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-};
-
-export const addGame = (game) => {
-  return {
-    type: actionTypes.ADD_GAME,
-    game,
-  };
-};
-
-// Add Game Gession
 export const recordNewSession = (gameSession) => {
   return (dispatch) => {
+    dispatch(addGameSessionStart());
+
     const formattedGameSessionObj = {
       gameDate: gameSession.gameDate.value,
       gameId: gameSession.gameId.value,
@@ -157,5 +104,39 @@ export const addGameSession = (gameSession) => {
   return {
     type: actionTypes.ADD_GAME_SESSION,
     gameSession,
+  };
+};
+
+export const addGameSessionStart = () => {
+  return {
+    type: actionTypes.ADD_GAME_SESSION_START,
+  };
+};
+
+export const removeGameSession = (sessionId) => {
+  return (dispatch) => {
+    dispatch(deleteGameSessionStart());
+
+    axiosInstance
+      .delete(`/gameSessions/${sessionId}.json`)
+      .then(() => {
+        dispatch(deleteGameSession(sessionId));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+};
+
+export const deleteGameSession = (sessionId) => {
+  return {
+    type: actionTypes.DELETE_GAME_SESSION,
+    sessionId,
+  };
+};
+
+export const deleteGameSessionStart = () => {
+  return {
+    type: actionTypes.DELETE_GAME_SESSION_START,
   };
 };

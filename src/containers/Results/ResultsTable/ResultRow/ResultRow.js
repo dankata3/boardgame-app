@@ -1,13 +1,14 @@
 import React from 'react';
 import moment from 'moment';
-import Utils from '../../../../utils/utils';
+import { mapObject, openConfirmDeleteDialog } from '../../../../utils/utils';
+import TrashButton from '../../../../components/TrashButton/TrashButton';
 
 const resultRow = (props) => {
-  const { players, games, gameSession, maxPlayers } = props;
+  const { players, games, gameSession, maxPlayers, deleteGameSession } = props;
   const { gameId, gameDate, sessionPlayers } = gameSession;
 
-  const gamesMap = Utils.mapObjectById(games);
-  const playersMap = Utils.mapObjectById(players);
+  const gamesMap = mapObject(games);
+  const playersMap = mapObject(players);
 
   const formattedDate = moment(gameDate).format('DD/MM/YYYY');
   const sessionGame = gamesMap[gameId].name;
@@ -20,7 +21,6 @@ const resultRow = (props) => {
       playersScoresCells.push('');
     }
   }
-
   const playerScoreColumns = playersScoresCells.map((player, i) => {
     if (player) {
       const playerName = playersMap[player.playerId]['name'];
@@ -43,6 +43,17 @@ const resultRow = (props) => {
       <td>{formattedDate}</td>
       <td>{sessionGame}</td>
       {playerScoreColumns}
+      <td>
+        <TrashButton
+          click={() =>
+            openConfirmDeleteDialog(
+              'result',
+              gameSession.sessionId,
+              deleteGameSession
+            )
+          }
+        />
+      </td>
     </tr>
   );
 };

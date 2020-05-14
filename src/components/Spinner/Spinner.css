@@ -37,7 +37,7 @@
 .loader:before {
   width: 50%;
   height: 50%;
-  background: #ffffff;
+  background: #0dc5c1;
   border-radius: 100% 0 0 0;
   position: absolute;
   top: 0;
@@ -45,7 +45,7 @@
   content: '';
 }
 .loader:after {
-  background: #0dc5c1;
+  background: #fff;
   width: 75%;
   height: 75%;
   border-radius: 50%;
