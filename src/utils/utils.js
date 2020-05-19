@@ -70,11 +70,11 @@ export const checkValidity = (value, rules, isPlayerSelectedTwice = false) => {
   };
 };
 
-export const validateForm = (form) => {
+export const validateForm = (formObject) => {
   let isFormValid = true;
-
-  for (let inputIdentifier in form) {
-    const inputField = form[inputIdentifier];
+  debugger;
+  for (let inputIdentifier in formObject) {
+    const inputField = formObject[inputIdentifier];
     if (!inputField.validation && !Array.isArray(inputField)) {
       continue;
     }
@@ -96,6 +96,50 @@ export const validateForm = (form) => {
     }
   }
   return isFormValid;
+};
+
+export const createItemObject = (value, validationRules) => {
+  let rules = {};
+  let itemObject = {};
+
+  if (validationRules.length) {
+    for (let rule of validationRules) {
+      rules[rule] = true;
+    }
+
+    itemObject = {
+      value,
+      validation: rules,
+      valid: {
+        value: false,
+        error: null,
+      },
+      touched: false,
+    };
+  } else {
+    itemObject = {
+      value,
+    };
+  }
+
+  return itemObject;
+};
+
+export const inputChangeHandler = (
+  value,
+  inputIdentifierState,
+  setInputIdentifierState
+) => {
+  const newObjectItem = { ...inputIdentifierState };
+  debugger;
+  newObjectItem.touched = true;
+  newObjectItem.value = value;
+
+  if (newObjectItem.validation) {
+    newObjectItem.valid = checkValidity(value, newObjectItem.validation);
+  }
+
+  setInputIdentifierState(newObjectItem);
 };
 
 export const openConfirmDeleteDialog = (item, id, func) => {

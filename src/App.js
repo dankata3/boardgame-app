@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import './App.css';
 import Layout from './components/Layout/Layout';
@@ -10,33 +10,21 @@ import Results from './containers/Results/Results';
 import { connect } from 'react-redux';
 import { initAppData } from './store/actions/results';
 
-class App extends Component {
-  constructor() {
-    super();
+const app = (props) => {
+  useEffect(() => {
+    props.initAppData();
+  }, []);
 
-    this.state = {
-      loading: false,
-    };
-  }
-
-  componentDidMount() {
-    this.props.initAppData();
-  }
-
-  render() {
-    return (
-      <div>
-        <Layout>
-          <Switch>
-            <Route path="/" exact component={Results} />
-            <Route path="/players" component={Players} />
-            <Route path="/games" component={Games} />
-          </Switch>
-        </Layout>
-      </div>
-    );
-  }
-}
+  return (
+    <Layout>
+      <Switch>
+        <Route path="/" exact component={Results} />
+        <Route path="/players" component={Players} />
+        <Route path="/games" component={Games} />
+      </Switch>
+    </Layout>
+  );
+};
 
 const mapDispatchToProps = (dispatch) => {
   return {
@@ -44,4 +32,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(null, mapDispatchToProps)(App);
+export default connect(null, mapDispatchToProps)(app);

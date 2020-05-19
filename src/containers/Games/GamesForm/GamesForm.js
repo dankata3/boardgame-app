@@ -1,133 +1,91 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import Input from '../../../components/Input/Input';
-import { checkValidity, validateForm } from '../../../utils/utils';
+import {
+  validateForm,
+  createItemObject,
+  inputChangeHandler,
+} from '../../../utils/utils';
 import Spinner from '../../../components/Spinner/Spinner';
 
 import { connect } from 'react-redux';
 import { recordNewGame } from '../../../store/actions/games';
 
-class GamesForm extends Component {
-  constructor() {
-    super();
+const gamesForm = (props) => {
+  const nameState = createItemObject('', ['required', 'min']);
+  const bggLinkState = createItemObject('', ['required', 'min']);
 
-    this.state = {
-      form: {
-        name: {
-          value: '',
-          validation: {
-            required: true,
-            min: true,
-          },
-          valid: {
-            value: false,
-            error: null,
-          },
-          touched: false,
-        },
-        bggLink: {
-          value: '',
-          validation: {
-            required: true,
-            min: true,
-          },
-          valid: {
-            value: false,
-            error: null,
-          },
-          touched: false,
-        },
-      },
-      isFormValid: false,
-    };
+  const [name, setName] = useState({ ...nameState });
+  const [bggLink, setBggLink] = useState({ ...bggLinkState });
+  const [isFormValid, setIsFormValid] = useState(false);
 
-    this.initialState = this.state;
-  }
+  let initialNameState = { ...nameState };
+  let initialBggLinkState = { ...bggLinkState };
 
-  inputChangeHandler = (value, inputIdentifier) => {
-    const updatedForm = { ...this.state.form };
-    const updatedFormElement = { ...updatedForm[inputIdentifier] };
-    let isFormValid = false;
+  useEffect(() => {
+    setIsFormValid(validateForm({ name, bggLink }));
+  }, [name, bggLink]);
 
-    updatedFormElement.touched = true;
-    updatedFormElement.value = value;
-
-    if (updatedFormElement.validation) {
-      updatedFormElement.valid = checkValidity(
-        value,
-        updatedFormElement.validation
-      );
-    }
-    updatedForm[inputIdentifier] = updatedFormElement;
-    isFormValid = validateForm(updatedForm);
-
-    this.setState({
-      form: updatedForm,
-      isFormValid,
-    });
-  };
-
-  addGameHandler = (e) => {
+  const addGameHandler = (e) => {
     e.preventDefault();
 
-    this.props.addGame(this.state.form);
-    this.setState(this.initialState);
+    props.addGame({ name, bggLink });
+    setName(initialNameState);
+    setBggLink(initialBggLinkState);
   };
 
-  render() {
-    let spinner = this.props.loadingGames ? (
-      <div className="backdrop">
-        <Spinner />
-      </div>
-    ) : null;
+  let spinner = props.loadingGames ? (
+    <div className="backdrop">
+      <Spinner />
+    </div>
+  ) : null;
 
-    return (
-      <form
-        className="card p-3 bg-light app-form"
-        onSubmit={(e) => this.addGameHandler(e)}
-      >
-        {spinner}
-        <legend>Add Game</legend>
-        <div className="col-md-6 form-group">
-          <Input
-            label="Name"
-            name="name"
-            type="text"
-            inputtype="input"
-            validation={this.state.form.name.valid}
-            touched={this.state.form.name.touched}
-            value={this.state.form.name.value}
-            changed={(event) =>
-              this.inputChangeHandler(event.target.value, event.target.name)
-            }
-          />
-        </div>
-        <div className="col-md-6">
-          <Input
-            label="Link to BGG"
-            name="bggLink"
-            type="text"
-            inputtype="input"
-            validation={this.state.form.bggLink.valid}
-            touched={this.state.form.bggLink.touched}
-            value={this.state.form.bggLink.value}
-            changed={(event) =>
-              this.inputChangeHandler(event.target.value, event.target.name)
-            }
-          />
-        </div>
-        <div className="d-flex justify-content-center mt-3">
-          <button
-            disabled={!this.state.isFormValid}
-            className="btn btn-success"
-            type="submit"
-          >
-            Add Game
-          </button>
-        </div>
-      </form>
-    );
-  }
-}
+  return (
+    <form
+      className="card p-3 bg-light app-form"
+      onSubmit={(e) => addGameHandler(e)}
+    >
+      {spinner}
+      <legend>Add Game</legend>
+      <div className="col-md-6 form-group">
+        <Input
+          label="Name"
+          name="name"
+          type="text"
+          inputtype="input"
+          validation={name.valid}
+          touched={name.touched}
+          value={name.value}
+          changed={(event) =>
+            inputChangeHandler(event.target.value, name, setName)
+          }
+        />
+      </div>
+      <div className="col-md-6">
+        <Input
+          label="Link to BGG"
+          name="bggLink"
+          type="text"
+          inputtype="input"
+          validation={bggLink.valid}
+          touched={bggLink.touched}
+          value={bggLink.value}
+          changed={(event) =>
+            inputChangeHandler(event.target.value, bggLink, setBggLink)
+          }
+        />
+      </div>
+      <div className="d-flex justify-content-center mt-3">
+        <button
+          disabled={!isFormValid}
+          className="btn btn-success"
+          type="submit"
+        >
+          Add Game
+        </button>
+      </div>
+    </form>
+  );
+};
 
 const mapStateToProps = (state) => {
   return {
@@ -141,4 +99,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(GamesForm);
+export default connect(mapStateToProps, mapDispatchToProps)(gamesForm);
