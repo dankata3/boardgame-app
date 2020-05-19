@@ -217,7 +217,7 @@ class ResultsForm extends Component {
       sessionPlayers: updatedSessionPlayers,
     };
     let isFormValid = validateForm(updatedForm);
-    this.selectedPlayers = [];
+
     this.setState({
       form: updatedForm,
       isFormValid,
@@ -258,6 +258,7 @@ class ResultsForm extends Component {
     e.preventDefault();
 
     this.props.addGameSession(this.state.form);
+    this.selectedPlayers = [];
     this.setState(this.initialState);
   };
 
