@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TwitterPicker } from 'react-color';
 import Input from '../../../components/Input/Input';
+import Form from '../../../components/Form/Form';
 import {
   validateForm,
   createItemObject,
@@ -8,7 +9,7 @@ import {
 } from '../../../utils/utils';
 import Spinner from '../../../components/Spinner/Spinner';
 
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { recordNewPlayer } from '../../../store/actions/players';
 
 const playersForm = (props) => {
@@ -19,34 +20,51 @@ const playersForm = (props) => {
   const [color, setColor] = useState(colorState);
   const [isFormValid, setIsFormValid] = useState(false);
 
-  let initialNameState = { ...nameState };
-  let initialColorState = { ...colorState };
+  const initialNameState = { ...nameState };
+  const initialColorState = { ...colorState };
+
+  const dispatch = useDispatch();
+  const addPlayer = (player) => dispatch(recordNewPlayer(player));
+
+  const loadingPlayers = useSelector((state) => {
+    return state.players.loadingPlayers;
+  });
 
   useEffect(() => {
     setIsFormValid(validateForm({ name, color }));
   }, [name, color]);
 
-  const addPlayerHandler = (e) => {
-    e.preventDefault();
-
-    props.addPlayer({ name, color });
+  const resetForm = () => {
     setName(initialNameState);
     setColor(initialColorState);
   };
 
-  let spinner = props.loadingPlayers ? (
+  const addPlayerHandler = (e) => {
+    e.preventDefault();
+
+    addPlayer({ name, color });
+    closeFormHandler();
+  };
+
+  const closeFormHandler = () => {
+    resetForm();
+    props.closeForm();
+  };
+
+  let spinner = loadingPlayers ? (
     <div className="backdrop">
       <Spinner />
     </div>
   ) : null;
 
   return (
-    <form
-      className="card p-3 bg-light app-form"
-      onSubmit={(e) => addPlayerHandler(e)}
+    <Form
+      title="Add Player"
+      submit={addPlayerHandler}
+      closeForm={closeFormHandler}
+      isFormOpened={props.isFormOpened}
     >
       {spinner}
-      <legend>Add Player</legend>
       <div className="col-md-6 form-group">
         <Input
           label="Name"
@@ -79,20 +97,8 @@ const playersForm = (props) => {
           Add Player
         </button>
       </div>
-    </form>
+    </Form>
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    loadingPlayers: state.players.loadingPlayers,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    addPlayer: (player) => dispatch(recordNewPlayer(player)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(playersForm);
+export default playersForm;

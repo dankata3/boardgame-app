@@ -10,7 +10,6 @@ export const initAppData = () => {
     const gamesRequest = axiosInstance.get('/games.json');
     const playersRequest = axiosInstance.get('/players.json');
     const resultsRequest = axiosInstance.get('/gameSessions.json');
-
     axios
       .all([gamesRequest, playersRequest, resultsRequest])
       .then(

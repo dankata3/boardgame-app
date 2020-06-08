@@ -2,9 +2,29 @@
   padding: 30px 0;
 }
 
-.app-form {
-  max-width: 800px;
-  margin: 0 auto;
+.form {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  z-index: 3;
+  transition: 0.3s ease-out;
+}
+
+.slide-enter {
+  transform: translate(0, -100%);
+}
+.slide-enter-active {
+  transform: translate(0, 0);
+}
+
+.slide-exit {
+  transform: translate(0, 0);
+}
+.slide-exit-active {
+  transform: translate(0, -100%);
 }
 
 .table {
@@ -12,9 +32,12 @@
 }
 
 .nav-header {
+  background-color: #fff;
   border-bottom: 1px solid #3e3e3f;
   box-shadow: 1px 2px 4px #6b6b6d;
   height: 72px;
+  position: relative;
+  z-index: 4;
 }
 
 .nav-header a {
@@ -28,6 +51,7 @@
 }
 
 .close-card-btn {
+  font-size: 28px;
   position: absolute;
   right: 15px;
   top: 10px;
@@ -73,5 +97,4 @@
   padding: 8px;
   cursor: pointer;
   position: relative;
-  z-index: 200;
 }

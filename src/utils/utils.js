@@ -72,7 +72,7 @@ export const checkValidity = (value, rules, isPlayerSelectedTwice = false) => {
 
 export const validateForm = (formObject) => {
   let isFormValid = true;
-  debugger;
+
   for (let inputIdentifier in formObject) {
     const inputField = formObject[inputIdentifier];
     if (!inputField.validation && !Array.isArray(inputField)) {
@@ -85,7 +85,7 @@ export const validateForm = (formObject) => {
         break;
       }
     } else {
-      inputField.map((input) => {
+      inputField.forEach((input) => {
         for (let nestedInput in input) {
           isFormValid = input[nestedInput].valid.value && isFormValid;
         }
@@ -106,7 +106,6 @@ export const createItemObject = (value, validationRules) => {
     for (let rule of validationRules) {
       rules[rule] = true;
     }
-
     itemObject = {
       value,
       validation: rules,
@@ -131,7 +130,6 @@ export const inputChangeHandler = (
   setInputIdentifierState
 ) => {
   const newObjectItem = { ...inputIdentifierState };
-  debugger;
   newObjectItem.touched = true;
   newObjectItem.value = value;
 

@@ -1,20 +1,25 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import ResultRow from './ResultRow/ResultRow';
 
 const resultsTable = (props) => {
-  const resultRows = props.gameSessions.map((session, i) => {
-    return (
-      <ResultRow
-        key={session.sessionId}
-        index={i + 1}
-        players={props.players}
-        games={props.games}
-        gameSession={session}
-        maxPlayers={props.maxPlayers}
-        deleteGameSession={props.deleteGameSessionHandler}
-      />
-    );
-  });
+  const resultRows = useMemo(
+    () =>
+      props.gameSessions.map((session, i) => {
+        console.log('RESULT TABLE');
+        return (
+          <ResultRow
+            key={session.sessionId}
+            index={i + 1}
+            players={props.players}
+            games={props.games}
+            gameSession={session}
+            maxPlayers={props.maxPlayers}
+            deleteGameSession={props.deleteGameSessionHandler}
+          />
+        );
+      }),
+    [props.gameSessions, props.maxPlayers, props.players, props.games]
+  );
 
   return (
     <table className="table table-striped">
@@ -23,10 +28,10 @@ const resultsTable = (props) => {
           <th>#</th>
           <th>Date</th>
           <th>Game Name</th>
-          <th>1st Player</th>
-          <th>2nd Player</th>
-          <th>3rd Player</th>
-          <th>4th Player</th>
+          <th>1st Place</th>
+          <th>2nd Place</th>
+          <th>3rd Place</th>
+          <th>4th Place</th>
           <th></th>
         </tr>
       </thead>

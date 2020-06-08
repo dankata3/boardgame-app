@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 import PlayerScoreInputCard from './PlayerScoreInputCard/PlayerScoreInputCard';
 import Input from '../../../components/Input/Input';
+import Form from '../../../components/Form/Form';
 import Spinner from '../../../components/Spinner/Spinner';
 import {
   checkValidity,
@@ -11,84 +12,10 @@ import {
   inputChangeHandler,
 } from '../../../utils/utils';
 
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { recordNewSession } from '../../../store/actions/results';
 
 const resultsForm = (props) => {
-  // this.state = {
-  //   form: {
-  //     gameDate: {
-  //       value: Date.now(),
-  //     },
-  //     gameId: {
-  //       value: null,
-  //       validation: {
-  //         required: true,
-  //       },
-  //       valid: {
-  //         value: false,
-  //         error: null,
-  //       },
-  //       touched: false,
-  //     },
-  //     sessionPlayers: [
-  //       {
-  //         playerId: {
-  //           value: null,
-  //           validation: {
-  //             required: true,
-  //             different: true,
-  //           },
-  //           valid: {
-  //             value: false,
-  //             error: null,
-  //           },
-  //           touched: false,
-  //         },
-  //         score: {
-  //           value: null,
-  //           validation: {
-  //             required: true,
-  //             numeric: true,
-  //           },
-  //           valid: {
-  //             value: false,
-  //             error: null,
-  //           },
-  //           touched: false,
-  //         },
-  //       },
-  //       {
-  //         playerId: {
-  //           value: null,
-  //           validation: {
-  //             required: true,
-  //             different: true,
-  //           },
-  //           valid: {
-  //             value: false,
-  //             error: null,
-  //           },
-  //           touched: false,
-  //         },
-  //         score: {
-  //           value: null,
-  //           validation: {
-  //             required: true,
-  //             numeric: true,
-  //           },
-  //           valid: {
-  //             value: false,
-  //             error: null,
-  //           },
-  //           touched: false,
-  //         },
-  //       },
-  //     ],
-  //   },
-  //   isFormValid: false,
-
-  // this.initialState = this.state;
   const initialPlayersNumber = 2;
   const emptyPlayerObject = {
     playerId: createItemObject('', ['required', 'different']),
@@ -99,29 +26,51 @@ const resultsForm = (props) => {
     return Array(playersNumber)
       .fill()
       .map((_, i) => {
-        return { ...emptyPlayerObject };
+        return emptyPlayerObject;
       });
   };
+  const stringifiedSessionPlayersState = JSON.stringify(
+    setSessionPlayersState(initialPlayersNumber)
+  );
+  const sessionPlayersState = JSON.parse(stringifiedSessionPlayersState);
 
-  const gameDateState = createItemObject(Date.now(), []);
-  const gameIdState = createItemObject('', ['required']);
-  const sessionPlayersState = setSessionPlayersState(initialPlayersNumber);
+  const initialGameDateState = createItemObject(Date.now(), []);
+  const initialGameIdState = createItemObject('', ['required']);
 
-  const [gameDate, setGameDate] = useState({ ...gameDateState });
-  const [gameId, setGameId] = useState({ ...gameIdState });
+  const [gameDate, setGameDate] = useState({ ...initialGameDateState });
+  const [gameId, setGameId] = useState({ ...initialGameIdState });
   const [sessionPlayers, setSessionPlayers] = useState([
     ...sessionPlayersState,
   ]);
   const [isFormValid, setIsFormValid] = useState(false);
 
-  debugger;
-
   let selectedPlayers = [];
 
+  const dispatch = useDispatch();
+  const addGameSession = (gamesSession) =>
+    dispatch(recordNewSession(gamesSession));
+
+  const maxPlayers = useSelector((state) => {
+    return state.players.maxPlayers;
+  });
+  const recordingSession = useSelector((state) => {
+    return state.gameSessions.recordingSession;
+  });
+
   useEffect(() => {
-    console.log('validate', sessionPlayers);
     setIsFormValid(validateForm({ gameDate, gameId, sessionPlayers }));
   }, [gameDate, gameId, sessionPlayers]);
+
+  const resetForm = () => {
+    setGameDate(initialGameDateState);
+    setGameId(initialGameIdState);
+    setSessionPlayers(sessionPlayersState);
+  };
+
+  const closeFormHandler = () => {
+    resetForm();
+    props.closeForm();
+  };
 
   const addPlayerCardHandler = () => {
     const updatedSessionPlayers = sessionPlayers.concat(emptyPlayerObject);
@@ -133,128 +82,90 @@ const resultsForm = (props) => {
     setSessionPlayers(updatedSessionPlayers);
   };
 
-  // const inputChangeHandler = (value, inputIdentifier) => {
-  //   // const updatedFormElement = { ...this.state.form[inputIdentifier] };
-  //   // updatedFormElement.value = value;
-  //   // if (updatedFormElement.validation) {
-  //   //   updatedFormElement.touched = true;
-  //   //   updatedFormElement.valid = checkValidity(
-  //   //     value,
-  //   //     updatedFormElement.validation
-  //   //   );
-  //   // }
-  //   // const updatedForm = {
-  //   //   ...this.state.form,
-  //   //   [inputIdentifier]: updatedFormElement,
-  //   // };
-  //   // let isFormValid = validateForm(updatedForm);
-  //   // this.setState({
-  //   //   form: updatedForm,
-  //   //   isFormValid,
-  //   // });
-  // };
-
-  const selectPlayersHandler = async (value, position) => {
-    // const stringifiedForm = JSON.stringify(this.state.form);
-    // const form = JSON.parse(stringifiedForm);
-    // const sessionPlayers = [...form.sessionPlayers];
-    // const selectedPlayers = selectedPlayers;
-    // let isPlayerSelectedTwice = false;
-    // const updatedSessionPlayers = sessionPlayers.map((player, i) => {
-    //   if (i === position) {
-    //     if (!selectedPlayers.includes(value)) {
-    //       selectedPlayers.push(value);
-    //     } else {
-    //       isPlayerSelectedTwice = true;
-    //     }
-    //     player.playerId.touched = true;
-    //     player.playerId.valid = checkValidity(
-    //       value,
-    //       player.playerId.validation,
-    //       isPlayerSelectedTwice
-    //     );
-    //     if (player.playerId.valid.value) {
-    //       player.playerId.value = value;
-    //     } else {
-    //       player.playerId.value = null;
-    //       selectedPlayers.splice(position, 1);
-    //     }
-    //   }
-    //   return player;
-    // });
-    // const updatedForm = {
-    //   ...this.state.form,
-    //   sessionPlayers: updatedSessionPlayers,
-    // };
-    // let isFormValid = validateForm(updatedForm);
-    // this.setState({
-    //   form: updatedForm,
-    //   isFormValid,
-    // });
+  const selectPlayersHandler = (value, position) => {
+    let isPlayerSelectedTwice = false;
+    const newSessionPlayers = [...sessionPlayers];
+    const updatedSessionPlayers = newSessionPlayers.map((player, i) => {
+      if (i === position) {
+        if (selectedPlayers.includes(value)) {
+          isPlayerSelectedTwice = true;
+        } else {
+          selectedPlayers.push(value);
+        }
+        player.playerId.touched = true;
+        player.playerId.valid = checkValidity(
+          value,
+          player.playerId.validation,
+          isPlayerSelectedTwice
+        );
+        if (player.playerId.valid.value) {
+          player.playerId.value = value;
+        } else {
+          player.playerId.value = null;
+          selectedPlayers.splice(position, 1);
+        }
+      }
+      return player;
+    });
+    setSessionPlayers(updatedSessionPlayers);
   };
 
-  const playersScoresHandler = async (value, position) => {
-    // const stringifiedForm = JSON.stringify(this.state.form);
-    // const form = JSON.parse(stringifiedForm);
-    // const sessionPlayers = [...form.sessionPlayers];
-    // const updatedSessionPlayers = sessionPlayers.map((player, i) => {
-    //   if (i === position) {
-    //     player.score.touched = true;
-    //     player.score.valid = checkValidity(value, player.score.validation);
-    //     if (player.score.valid.value) {
-    //       player.score.value = value;
-    //     } else {
-    //       player.score.value = null;
-    //     }
-    //   }
-    //   return player;
-    // });
-    // const updatedForm = {
-    //   ...this.state.form,
-    //   sessionPlayers: updatedSessionPlayers,
-    // };
-    // let isFormValid = validateForm(updatedForm);
-    // this.setState({
-    //   form: updatedForm,
-    //   isFormValid,
-    // });
+  const playersScoresHandler = (value, position) => {
+    const newSessionPlayers = [...sessionPlayers];
+    const updatedSessionPlayers = newSessionPlayers.map((player, i) => {
+      if (i === position) {
+        player.score.touched = true;
+        player.score.valid = checkValidity(value, player.score.validation);
+        if (player.score.valid.value) {
+          player.score.value = value;
+        } else {
+          player.score.value = null;
+        }
+      }
+      return player;
+    });
+    setSessionPlayers(updatedSessionPlayers);
   };
 
   const recordSessionHandler = (e) => {
     e.preventDefault();
 
-    props.addGameSession({ gameDate, gameId, sessionPlayers });
-    // selectedPlayers = [];
-    // setState(initialState);
+    addGameSession({ gameDate, gameId, sessionPlayers });
+    closeFormHandler();
   };
 
-  const isAddPlayerBtnDisabled = sessionPlayers.length >= props.maxPlayers;
+  const isAddPlayerBtnDisabled = sessionPlayers.length >= maxPlayers;
 
-  const inputPlayerCards = sessionPlayers.map((sPlayer, i) => (
-    <PlayerScoreInputCard
-      key={i}
-      index={i + 1}
-      players={props.players}
-      sessionPlayer={sPlayer}
-      selectName={selectPlayersHandler.bind(this)}
-      writeScore={playersScoresHandler.bind(this)}
-      deletePlayerCard={deletePlayerCardHandler.bind(this)}
-    />
-  ));
+  const inputPlayerCards = useMemo(
+    () =>
+      sessionPlayers.map((sPlayer, i) => (
+        <PlayerScoreInputCard
+          key={i}
+          index={i + 1}
+          players={props.players}
+          sessionPlayer={sPlayer}
+          selectName={selectPlayersHandler.bind(this)}
+          writeScore={playersScoresHandler.bind(this)}
+          deletePlayerCard={deletePlayerCardHandler.bind(this)}
+        />
+      )),
+    [props.players, sessionPlayers]
+  );
 
-  let spinner = props.recordingSession ? (
+  let spinner = recordingSession ? (
     <div className="backdrop">
       <Spinner />
     </div>
   ) : null;
 
   return (
-    <form
-      className="card p-3 bg-light app-form"
-      onSubmit={recordSessionHandler}
+    <Form
+      title="Add Result"
+      submit={recordSessionHandler}
+      closeForm={closeFormHandler}
+      isFormOpened={props.isFormOpened}
     >
       {spinner}
-      <legend className="mb-3">Enter Game Results</legend>
       <div className="row mb-3">
         <div className="col-md-6">
           <label htmlFor="gameDate" className="d-block">
@@ -303,21 +214,8 @@ const resultsForm = (props) => {
           Submit Results
         </button>
       </div>
-    </form>
+    </Form>
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    maxPlayers: state.players.maxPlayers,
-    recordingSession: state.gameSessions.recordingSession,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    addGameSession: (gamesSession) => dispatch(recordNewSession(gamesSession)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(resultsForm);
+export default React.memo(resultsForm);

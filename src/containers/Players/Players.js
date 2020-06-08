@@ -1,43 +1,47 @@
-import React, { Component, Fragment } from 'react';
+import React, { useMemo, Fragment } from 'react';
 import PlayersForm from './PlayersForm/PlayersForm';
 import Card from '../../components/Card/Card';
 import TrashButton from '../../components/TrashButton/TrashButton';
 import { openConfirmDeleteDialog } from '../../utils/utils';
+import useToggleForm from '../../hooks/toggleForm';
 
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { removePlayer } from '../../store/actions/players';
-class Players extends Component {
-  render() {
-    const playerList = this.props.players.map((player) => (
-      <Card key={player.id}>
-        <p style={{ color: player.color }}>{player.name}</p>
-        <TrashButton
-          click={() =>
-            openConfirmDeleteDialog('game', player.id, this.props.deletePlayer)
-          }
-        />
-      </Card>
-    ));
 
-    return (
-      <Fragment>
-        <PlayersForm />
-        <ul className="list-group">{playerList}</ul>
-      </Fragment>
-    );
-  }
-}
+const Players = () => {
+  const [isFormOpened, toggleForm] = useToggleForm(false);
 
-const mapStateToProps = (state) => {
-  return {
-    players: state.players.players,
-  };
+  const dispatch = useDispatch();
+  const deletePlayer = (playerId) => dispatch(removePlayer(playerId));
+
+  const players = useSelector((state) => {
+    return state.players.players;
+  });
+
+  const playerList = useMemo(
+    () =>
+      players.map((player) => (
+        <Card key={player.id}>
+          <p style={{ color: player.color }}>{player.name}</p>
+          <TrashButton
+            click={() =>
+              openConfirmDeleteDialog('game', player.id, deletePlayer)
+            }
+          />
+        </Card>
+      )),
+    [players]
+  );
+
+  return (
+    <Fragment>
+      <PlayersForm closeForm={toggleForm} isFormOpened={isFormOpened} />
+      <button onClick={toggleForm} className="btn btn-secondary mb-3">
+        Add new player
+      </button>
+      <ul className="list-group">{playerList}</ul>
+    </Fragment>
+  );
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    deletePlayer: (playerId) => dispatch(removePlayer(playerId)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Players);
+export default Players;

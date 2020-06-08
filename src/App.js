@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import './App.css';
 import Layout from './components/Layout/Layout';
@@ -7,13 +7,16 @@ import Games from './containers/Games/Games';
 import Players from './containers/Players/Players';
 import Results from './containers/Results/Results';
 
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { initAppData } from './store/actions/results';
 
-const app = (props) => {
+const App = () => {
+  const dispatch = useDispatch();
+  const onInitAppData = () => dispatch(initAppData());
+
   useEffect(() => {
-    props.initAppData();
-  }, []);
+    onInitAppData();
+  }, [onInitAppData]);
 
   return (
     <Layout>
@@ -26,10 +29,4 @@ const app = (props) => {
   );
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    initAppData: () => dispatch(initAppData()),
-  };
-};
-
-export default connect(null, mapDispatchToProps)(app);
+export default App;

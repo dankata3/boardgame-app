@@ -6,8 +6,9 @@ import {
   inputChangeHandler,
 } from '../../../utils/utils';
 import Spinner from '../../../components/Spinner/Spinner';
+import Form from '../../../components/Form/Form';
 
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { recordNewGame } from '../../../store/actions/games';
 
 const gamesForm = (props) => {
@@ -21,6 +22,13 @@ const gamesForm = (props) => {
   let initialNameState = { ...nameState };
   let initialBggLinkState = { ...bggLinkState };
 
+  const dispatch = useDispatch();
+  const addGame = (game) => dispatch(recordNewGame(game));
+
+  const loadingGames = useSelector((state) => {
+    return state.games.loadingGames;
+  });
+
   useEffect(() => {
     setIsFormValid(validateForm({ name, bggLink }));
   }, [name, bggLink]);
@@ -28,24 +36,34 @@ const gamesForm = (props) => {
   const addGameHandler = (e) => {
     e.preventDefault();
 
-    props.addGame({ name, bggLink });
+    addGame({ name, bggLink });
+    closeFormHandler();
+  };
+
+  const resetForm = () => {
     setName(initialNameState);
     setBggLink(initialBggLinkState);
   };
 
-  let spinner = props.loadingGames ? (
+  const closeFormHandler = () => {
+    resetForm();
+    props.closeForm();
+  };
+
+  let spinner = loadingGames ? (
     <div className="backdrop">
       <Spinner />
     </div>
   ) : null;
 
   return (
-    <form
-      className="card p-3 bg-light app-form"
-      onSubmit={(e) => addGameHandler(e)}
+    <Form
+      title="Add Game"
+      submit={addGameHandler}
+      closeForm={closeFormHandler}
+      isFormOpened={props.isFormOpened}
     >
       {spinner}
-      <legend>Add Game</legend>
       <div className="col-md-6 form-group">
         <Input
           label="Name"
@@ -83,20 +101,8 @@ const gamesForm = (props) => {
           Add Game
         </button>
       </div>
-    </form>
+    </Form>
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    loadingGames: state.games.loadingGames,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    addGame: (game) => dispatch(recordNewGame(game)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(gamesForm);
+export default gamesForm;
