@@ -43,8 +43,7 @@ const resultsForm = (props) => {
     ...sessionPlayersState,
   ]);
   const [isFormValid, setIsFormValid] = useState(false);
-
-  let selectedPlayers = [];
+  const [selectedPlayers, setSelectedPlayers] = useState([]);
 
   const dispatch = useDispatch();
   const addGameSession = (gamesSession) =>
@@ -90,7 +89,7 @@ const resultsForm = (props) => {
         if (selectedPlayers.includes(value)) {
           isPlayerSelectedTwice = true;
         } else {
-          selectedPlayers.push(value);
+          setSelectedPlayers((prevState) => prevState.concat(value));
         }
         player.playerId.touched = true;
         player.playerId.valid = checkValidity(
@@ -102,7 +101,7 @@ const resultsForm = (props) => {
           player.playerId.value = value;
         } else {
           player.playerId.value = null;
-          selectedPlayers.splice(position, 1);
+          setSelectedPlayers((prevState) => prevState.splice(position, 1));
         }
       }
       return player;
