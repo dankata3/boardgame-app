@@ -15,9 +15,7 @@ import registerServiceWorker from './registerServiceWorker';
 const logger = (store) => {
   return (next) => {
     return (action) => {
-      // console.log(action);
       const result = next(action);
-      // console.log(store.getState());
       return result;
     };
   };
